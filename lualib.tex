@@ -228,6 +228,47 @@ function tikzDrawAlongCircle(nb_dots, origin_x, origin_y, radius, angle1, angle2
       end
     end
 
+      function tikzTensorTrainInnerP(max_branch, origin_x, origin_y, radius, d_branch)
+      local branch_lenght = 2*radius;
+      local x = origin_x;
+      local upperY = origin_y+2*branch_lenght;
+      local height_rank = 1;
+      for i = 1,max_branch,1 do
+        if (i == max_branch) then
+          if (d_branch) then
+            tex.print("\\draw[] ("..x..","..upperY..") node {...};")
+            tex.print("\\draw[] ("..x..","..origin_y..") node {...};")
+            tex.print("\\draw[] ("..x..","..origin_y+branch_lenght..") node {...};")
+            x = x + radius
+            local string4 = "\\draw[] ("..x..","..upperY..") -- ++("..branch_lenght..",0);"
+            local ubranch = "\\draw[] ("..x..","..upperY..") ++("..branch_lenght.."/2,"..height_rank..") node {\\scriptsize $q_{d-1}$};"
+            local string3 = "\\draw[] ("..x..","..origin_y..") -- ++("..branch_lenght..",0);"
+            local lbranch = "\\draw[] ("..x..","..origin_y..") ++("..branch_lenght.."/2,"..height_rank..") node {\\scriptsize $r_{d-1}$};"
+            x = x + branch_lenght + radius
+            local string1 = "\\draw[] ("..x..","..upperY..") circle ("..radius..");"
+            local string = "\\draw[] ("..x..","..origin_y..") circle ("..radius..");"
+            local string2 = "\\draw[] ("..x..","..origin_y+radius..") -- ++(0,"..branch_lenght..") ++(0,-"..branch_lenght.."/2) node [right] {$n_{d}$};"
+            tex.print(lbranch..ubranch..string3..string..string2..string1..string4)
+          else
+            local string1 = "\\draw[] ("..x..","..upperY..") circle ("..radius..");"
+            local string = "\\draw[] ("..x..","..origin_y..") circle ("..radius..");"
+            local string2 = "\\draw[] ("..x..","..origin_y+radius..") -- ++(0,"..branch_lenght..") ++(0,-"..branch_lenght.."/2) node [right] {$n_{"..i.."}$};"
+            tex.print(string1..string..string2)
+          end
+        else
+          local string1 = "\\draw[] ("..x..","..upperY..") circle ("..radius..");"
+          local string = "\\draw[] ("..x..","..origin_y..") circle ("..radius..");"
+          local string2 = "\\draw[] ("..x..","..origin_y+radius..") -- ++(0,"..branch_lenght..") ++(0,-"..branch_lenght.."/2) node [right] {$n_{"..i.."}$};"
+          local string5 = "\\draw[] ("..x+radius..","..upperY..") -- ++("..branch_lenght..",0);"
+          local string3 = "\\draw[] ("..x+radius..","..origin_y..") -- ++("..branch_lenght..",0);"
+          local string6 = "\\draw[] ("..x+radius..","..upperY..") ++("..branch_lenght.."/2,"..height_rank..") node {\\scriptsize $q_{"..i.."}$};"
+          local string4 = "\\draw[] ("..x+radius..","..origin_y..") ++("..branch_lenght.."/2,"..height_rank..") node {\\scriptsize $r_{"..i.."}$};"
+          tex.print(string1..string..string2..string5..string3..string6..string4)
+          x = x + 2*branch_lenght;
+        end
+      end
+    end
+
   function tikzlegend (originX, originY, pos, text)
   local legend = string.format ("\\node[%s] at (%s,%s) {%s};", pos, originX, originY, text)
   tex.print(legend)
