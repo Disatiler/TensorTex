@@ -231,9 +231,9 @@ end
 function tikzTensorTrainInnerP(originX, originY, scale, length, contiguous)
 	 local radius = scale              -- radius of tensor nodes
 	 local contractionLength = 2*scale -- length of contractions between tensors
-	 local x = originX                                     -- current x coordinate
-	 local lowerY = originY																 -- y coordinate of lower tensor train
-	 local upperY = originY + 2*radius + contractionLength -- y coordinate of upper tensor train
+	 local x = originX										 					 			  -- current x coordinate
+	 local lowerY = originY																-- y coordinate of lower tensor train
+	 local upperY = originY + 2*radius + contractionLength	-- y coordinate of upper tensor train
 	 local height_rank = 1;
 	 for i = 1,length,1 do
 			if (i == length) then
@@ -269,6 +269,37 @@ function tikzTensorTrainInnerP(originX, originY, scale, length, contiguous)
 				 x = x + 2*contractionLength;
 			end
 	 end
+end
+
+function tikzTensorTrainInnerPSplit(originX, originY, scale, length, contiguous, upperSplit, lowerSplit)
+	 local radius = scale              -- radius of tensor nodes
+	 local diameter = 2*radius         -- diameter of tensor nodes
+	 local contractionLength = 2*scale -- length of contractions between tensors
+	 local x = originX
+	 local lowerY = originY
+	 local upperY = originY + 2*radius + contractionLength
+
+	 local x1 = x - radius - contractionLength/2 + upperSplit*contractionLength + upperSplit*diameter
+	 local x2 = x - radius - contractionLength/2 + lowerSplit*contractionLength + lowerSplit*diameter
+	 local y1 = upperY + radius
+	 local y2 = upperY - radius - contractionLength/2
+	 local y3 = lowerY - radius
+	 tex.print("\\draw[dashed] ("..x1..", "..y1..") -- ("..x1..", "..y2..") -- ("..x2..", "..y2..") -- ("..x2..", "..y3..");")
+end
+
+function tikzTensorTrainInnerPBox(originX, originY, scale, length, contiguous, startIdx, endIdx)
+	 local radius = scale              -- radius of tensor nodes
+	 local diameter = 2*radius         -- diameter of tensor nodes
+	 local contractionLength = 2*scale -- length of contractions between tensors
+	 local x = originX
+	 local lowerY = originY
+	 local upperY = originY + 2*radius + contractionLength
+
+	 local x1 = x - radius - contractionLength/2 + startIdx*contractionLength + startIdx*diameter
+	 local x2 = x - radius - contractionLength/2 + endIdx*contractionLength + endIdx*diameter
+	 local y1 = upperY + radius*2
+	 local y2 = lowerY - radius*2
+	 tex.print("\\draw[dashed] ("..x1..", "..y1..") -- ("..x1..", "..y2..") -- ("..x2..", "..y2..") -- ("..x2..", "..y1..") -- cycle;")
 end
 
 function tikzlegend (originX, originY, pos, text)
