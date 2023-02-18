@@ -228,47 +228,41 @@ function tikztensortrain(max_branch, origin_x, origin_y, radius, d_branch)
 	 end
 end
 
+function tikzTensorTrainCore(x, y, radius, contractionLength, node, dimSide, startRank, endRank, i)
+	 if(startRank) then
+			tex.print("\\draw[] ("..x-radius..","..y..") -- ++(-"..contractionLength..",0) node [above] {\\scriptsize $r_{".. i-1 .."}$};")
+	 end
+	 if(node) then
+			tex.print("\\draw[] ("..x..","..y..") circle ("..radius..");")
+			if(dimSide) then
+				 tex.print("\\draw[] ("..x..","..y+radius..") -- ++(0,"..contractionLength..") node [right] {\\scriptsize $n_{"..i.."}$};")
+			else
+				 tex.print("\\draw[] ("..x..","..y-radius..") -- ++(0,-"..contractionLength..") node [right] {\\scriptsize $n_{"..i.."}$};")
+			end
+	 else
+			tex.print("\\draw[] ("..x..","..y..") node {...};")
+	 end
+	 if(endRank) then
+			tex.print("\\draw[] ("..x+radius..","..y..") -- ++("..contractionLength..",0) node [above] {\\scriptsize $r_{"..i.."}$};")
+	 end
+end
+
+function tikzTensorTrain(originX, originY, scale, length, startRank, endRank, contiguous, dimSide, startIdx)
+	 local radius = scale              -- radius of tensor nodes
+	 local contractionLength = scale   -- length of contractions between tensors
+	 for i = 1,length,1 do
+			local x = originX + (i-1) * (2*radius + 2*contractionLength)
+			local node = not (i == length-1) or contiguous
+			tikzTensorTrainCore(x, originY, radius, contractionLength, node, dimSide, not (i == 1) or startRank, not (i == length) or endRank, i+startIdx)
+	 end
+end
+
 function tikzTensorTrainInnerP(originX, originY, scale, length, contiguous)
 	 local radius = scale              -- radius of tensor nodes
-	 local contractionLength = 2*scale -- length of contractions between tensors
-	 local x = originX										 					 			  -- current x coordinate
-	 local lowerY = originY																-- y coordinate of lower tensor train
-	 local upperY = originY + 2*radius + contractionLength	-- y coordinate of upper tensor train
-	 local height_rank = 1;
-	 for i = 1,length,1 do
-			if (i == length) then
-				 if (contiguous) then
-						tex.print("\\draw[] ("..x..","..upperY..") node {...};")
-						tex.print("\\draw[] ("..x..","..originY..") node {...};")
-						tex.print("\\draw[] ("..x..","..originY+contractionLength..") node {...};")
-						x = x + radius
-						local string4 = "\\draw[] ("..x..","..upperY..") -- ++("..contractionLength..",0);"
-						local ubranch = "\\draw[] ("..x..","..upperY..") ++("..contractionLength.."/2,"..height_rank..") node {\\scriptsize $q_{d-1}$};"
-						local string3 = "\\draw[] ("..x..","..originY..") -- ++("..contractionLength..",0);"
-						local lbranch = "\\draw[] ("..x..","..originY..") ++("..contractionLength.."/2,"..height_rank..") node {\\scriptsize $r_{d-1}$};"
-						x = x + contractionLength + radius
-						local string1 = "\\draw[] ("..x..","..upperY..") circle ("..radius..");"
-						local string = "\\draw[] ("..x..","..originY..") circle ("..radius..");"
-						local string2 = "\\draw[] ("..x..","..originY+radius..") -- ++(0,"..contractionLength..") ++(0,-"..contractionLength.."/2) node [right] {$n_{d}$};"
-						tex.print(lbranch..ubranch..string3..string..string2..string1..string4)
-				 else
-						local string1 = "\\draw[] ("..x..","..upperY..") circle ("..radius..");"
-						local string = "\\draw[] ("..x..","..originY..") circle ("..radius..");"
-						local string2 = "\\draw[] ("..x..","..originY+radius..") -- ++(0,"..contractionLength..") ++(0,-"..contractionLength.."/2) node [right] {$n_{"..i.."}$};"
-						tex.print(string1..string..string2)
-				 end
-			else
-				 local string1 = "\\draw[] ("..x..","..upperY..") circle ("..radius..");"
-				 local string = "\\draw[] ("..x..","..originY..") circle ("..radius..");"
-				 local string2 = "\\draw[] ("..x..","..originY+radius..") -- ++(0,"..contractionLength..") ++(0,-"..contractionLength.."/2) node [right] {$n_{"..i.."}$};"
-				 local string5 = "\\draw[] ("..x+radius..","..upperY..") -- ++("..contractionLength..",0);"
-				 local string3 = "\\draw[] ("..x+radius..","..originY..") -- ++("..contractionLength..",0);"
-				 local string6 = "\\draw[] ("..x+radius..","..upperY..") ++("..contractionLength.."/2,"..height_rank..") node {\\scriptsize $q_{"..i.."}$};"
-				 local string4 = "\\draw[] ("..x+radius..","..originY..") ++("..contractionLength.."/2,"..height_rank..") node {\\scriptsize $r_{"..i.."}$};"
-				 tex.print(string1..string..string2..string5..string3..string6..string4)
-				 x = x + 2*contractionLength;
-			end
-	 end
+	 local contractionLength = scale -- length of contractions between tensors
+	 tikzTensorTrain(originX, originY, scale, length, false, false, contiguous, true, 0)
+	 originY = originY + 2*radius + 2*contractionLength
+	 tikzTensorTrain(originX, originY, scale, length, false, false, contiguous, false, 0)
 end
 
 function tikzTensorTrainInnerPSplit(originX, originY, scale, length, contiguous, upperSplit, lowerSplit)
