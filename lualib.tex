@@ -230,20 +230,26 @@ end
 
 function tikzTensorTrainCore(x, y, radius, contractionLength, node, dimSide, startRank, endRank, color, i)
 	 if(startRank) then
-			tex.print("\\draw[color="..color.."] ("..x-radius..","..y..") -- ++(-"..contractionLength..",0) node [above, color=black] {\\scriptsize $r_{".. i-1 .."}$};")
+			if(not node) then
+				 tex.print("\\draw[color="..color.."] ("..x-radius..","..y..") -- ++(-"..contractionLength..",0);")
+			elseif(type(i)=="string") then
+				 tex.print("\\draw[color="..color.."] ("..x-radius..","..y..") -- ++(-"..contractionLength..",0) node [above, color=black] {\\scriptsize $r_{"..i.."-1}$};")
+			else
+				 tex.print("\\draw[color="..color.."] ("..x-radius..","..y..") -- ++(-"..contractionLength..",0) node [above, color=black] {\\scriptsize $r_{".. i-1 .."}$};")
+			end
 	 end
 	 if(node) then
-			tex.print("\\draw[color="..color.."] ("..x..","..y..") circle ("..radius..");")
-			if(dimSide) then
-				 tex.print("\\draw[color="..color.."] ("..x..","..y+radius..") -- ++(0,"..contractionLength..") node [right, color=black] {\\scriptsize $n_{"..i.."}$};")
-			else
-				 tex.print("\\draw[color="..color.."] ("..x..","..y-radius..") -- ++(0,-"..contractionLength..") node [right, color=black] {\\scriptsize $n_{"..i.."}$};")
-			end
+			tex.print("\\draw[color="..color..", fill] ("..x..","..y..") circle ("..radius..");")
+			tex.print("\\draw[color="..color.."] ("..x..","..y..dimSide..radius..") -- ++(0,"..dimSide..contractionLength..") node [right, color=black] {\\scriptsize $n_{"..i.."}$};")
 	 else
 			tex.print("\\draw[color="..color.."] ("..x..","..y..") node {...};")
 	 end
 	 if(endRank) then
-			tex.print("\\draw[color="..color.."] ("..x+radius..","..y..") -- ++("..contractionLength..",0) node [above, color=black] {\\scriptsize $r_{"..i.."}$};")
+			if(not node) then
+				 tex.print("\\draw[color="..color.."] ("..x+radius..","..y..") -- ++("..contractionLength..",0);")
+			else
+				 tex.print("\\draw[color="..color.."] ("..x+radius..","..y..") -- ++("..contractionLength..",0) node [above, color=black] {\\scriptsize $r_{"..i.."}$};")
+			end
 	 end
 end
 
@@ -251,14 +257,16 @@ function tikzTensorTrain(originX, originY, radius, contractionLength, length, st
 	 for i = 1,length,1 do
 			local x = originX + (i-1) * (2*radius + 2*contractionLength)
 			local node = not (i == length-1) or contiguous
-			tikzTensorTrainCore(x, originY, radius, contractionLength, node, dimSide, not (i == 1) or startRank, not (i == length) or endRank, color, i+startIdx)
+			local idx = ((not contiguous) and (i == length)) and "d" or (i+startIdx)
+			local side = ((dimSide=="up") and "+") or ((dimSide=="down") and "-")
+			tikzTensorTrainCore(x, originY, radius, contractionLength, node, side, not (i == 1) or startRank, not (i == length) or endRank, color, idx)
 	 end
 end
 
-function tikzTensorTrainInnerP(originX, originY, radius, contractionLength, length, contiguous, color)
-	 tikzTensorTrain(originX, originY, radius, contractionLength, length, false, false, contiguous, color, true, 0)
+function tikzTensorTrainInnerP(originX, originY, radius, contractionLength, length, contiguous, color, startIdx)
+	 tikzTensorTrain(originX, originY, radius, contractionLength, length, false, false, contiguous, color, "up", startIdx)
 	 local y = originY + 2*radius + 2*contractionLength
-	 tikzTensorTrain(originX, y, radius, contractionLength, length, false, false, contiguous, color, false, 0)
+	 tikzTensorTrain(originX, y, radius, contractionLength, length, false, false, contiguous, color, "down", startIdx)
 end
 
 function tikzTensorTrainInnerPSplit(originX, originY, radius, contractionLength, length, contiguous, upperSplit, lowerSplit)
@@ -276,16 +284,7 @@ function tikzTensorTrainInnerPSplit(originX, originY, radius, contractionLength,
 end
 
 function tikzTensorTrainInnerPBox(originX, originY, radius, contractionLength, length, contiguous, startIdx, endIdx)
-	 local diameter = 2*radius         -- diameter of tensor nodes
-	 local x = originX
-	 local lowerY = originY
-	 local upperY = originY + 2*radius + 2*contractionLength
-
-	 local x1 = x - radius - contractionLength + startIdx*contractionLength*2 + startIdx*diameter
-	 local x2 = x - radius - contractionLength + endIdx*contractionLength*2 + endIdx*diameter
-	 local y1 = upperY + radius*2
-	 local y2 = lowerY - radius*2
-	 tex.print("\\draw[dashed] ("..x1..", "..y1..") -- ("..x1..", "..y2..") -- ("..x2..", "..y2..") -- ("..x2..", "..y1..") -- cycle;")
+	 tikzTensorTrainInnerPBoxIJ(originX, originY, radius, contractionLength, length, contiguous, startIdx, startIdx, endIdx, endIdx)
 end
 
 function tikzTensorTrainInnerPBoxIJ(originX, originY, radius, contractionLength, length, contiguous, startI, startJ, endI, endJ)
