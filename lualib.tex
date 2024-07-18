@@ -14,389 +14,437 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{luacode*}
 
-function tikzDrawQRSVD(max_branch, origin_x, origin_y, radius, angle, lenght)
-	 --Left part
-	 tikztensorbranch(origin_x, origin_y-2.5, radius,-angle,lenght,'$n_{1}$','above right')
-	 tikztensorbranch(origin_x, origin_y-2.5, radius,-angle*2,lenght,'$n_{2}$','above right')
-	 tex.print(string.format("\\draw[->] (%f,%f) ++(7,-2.5) to node [above, sloped,font=\\footnotesize] {QR} ++(5,2.5);", origin_x, origin_y))
-	 
-	 --Right part
-	 origin_x = origin_x + 20
-	 tikztensorbranch(origin_x,origin_y,radius,-1*angle,lenght,'$n_{1}$','')
-	 tikztensorbranch(origin_x,origin_y,1,-2*angle,lenght,'','above right')
-	 --tikztensorbranch(origin_x,origin_y,1,180,0,'','')
-	 tikzlegend(origin_x+2, origin_y, 'above', '$r$')
-	 --tex.print(string.format("\\draw[fill=black] (%f,%f) circle (1cm);", origin_x,origin_y))
-	 --tex.print(string.format("\\draw[fill=white] (%f,%f+1) arc (90:270:1);", origin_x,origin_y))
-	 origin_x = origin_x + 4*radius
-	 tikztensorbranch(origin_x,origin_y,radius,-1*angle,lenght,'','above right')
-	 tikztensorbranch(origin_x,origin_y,radius,-2*angle,lenght,'$n_{2}$','right')
-	 tikztensorbranch(origin_x,origin_y,radius,400,0,'','below')
-
-	 local originX = 0;
-	 local originY = 15;
-	 local max_branch = 2;
-	 local angle = 360/max_branch;    
-	 --Left part
-	 tex.print(string.format("\\draw[->] (%f,%f) ++(7,+2.5) to node [below, sloped,font=\\footnotesize] {SVD} ++(5,-2.5);", originX, originY))
-	 local firstA = originX+18;
-	 
-	 --Right part
-	 tikztensorbranch(firstA,originY,1,-1*angle,2,'$n_{1}$','above right')
-	 tikztensorbranch(firstA,originY,1,-2*angle,2,'','above right')
-	 tikztensorbranch(firstA,originY,1,400,0,'','below')
-	 --tex.print("\\draw[fill=black] ("..firstA..","..originY..") circle (1cm);")
-	 --tex.print("\\draw[fill=white] ("..firstA..","..originY.."+1) arc (90:270:1);")
-	 tikzlegend(firstA+2, originY, 'above', '$r$')
-
-	 local firstB = firstA+4;
-	 tikztensorbranch(firstB,originY,1,-1*angle,2,'','above right')
-	 tikztensorbranch(firstB,originY,1,-2*angle,2,'','above right')
-	 tikztensorbranch(firstB,originY,1,400,0,'','below')
-	 tikzlegend(firstB+2, originY, 'above', '$r$')
-
-	 local firstC = firstB+4;
-	 tikztensorbranch(firstC,originY,1,-1*angle,2,'','above right')
-	 tikztensorbranch(firstC,originY,1,-2*angle,2,'$n_{2}$','above right')
-	 tikztensorbranch(firstC,originY,1,400,0,'','below')
-	 --tex.print("\\draw[fill=black] ("..firstC..","..originY.."+1) arc (90:270:1);")
-
-end
-
-function tikzDrawQR(origin_x, origin_y, radius, angle, lenght)
-	 --Left part
-	 tikztensorbranch(origin_x, origin_y, radius,-angle,lenght,'$n_{1}$','above right')
-	 tikztensorbranch(origin_x, origin_y, radius,-angle*2,lenght,'$n_{2}$','above right')
-	 tex.print(string.format("\\draw[->] (%f+5,%f) -- ++(5,0);", origin_x, origin_y))
-	 tex.print(string.format("\\node[] at (%f+6,%f+1.5) {QR};", origin_x, origin_y))
-	 
-	 --Right part
-	 origin_x = origin_x + 15
-	 tikztensorbranch(origin_x,origin_y,radius,-1*angle,lenght,'$n_{1}$','')
-	 tikztensorbranch(origin_x,origin_y,1,-2*angle,lenght,'','above right')
-	 --tikztensorbranch(origin_x,origin_y,1,180,0,'','')
-	 tikzlegend(origin_x+2, origin_y, 'above', '$r$')
-	 tex.print(string.format("\\draw[fill=black] (%f,%f) circle (1cm);", origin_x,origin_y))
-	 tex.print(string.format("\\draw[fill=white] (%f,%f+1) arc (90:270:1);", origin_x,origin_y))
-	 origin_x = origin_x + 4*radius
-	 tikztensorbranch(origin_x,origin_y,radius,-1*angle,lenght,'','above right')
-	 tikztensorbranch(origin_x,origin_y,radius,-2*angle,lenght,'$n_{2}$','right')
-	 tikztensorbranch(origin_x,origin_y,radius,400,0,'','below')
-end
-
-
-function tikzDrawHOSVD(max_branch, originX, originY, angle, radius)
-	 for i = 1,max_branch,1 do
-      local x = originX
-      local lenght = 3
-      local angle = -i*angle
-      --Do the same line as above but withouth string.format
-      if (i == max_branch) then
-				 local string = "\\draw[] ("..x.." ,"..originY.." ) arc (0:"..angle..":1.5) -- node[above,sloped] {\\tiny $r_{d}$} ++("..angle..":"..lenght..") --++("..angle..":1) coordinate (temp);"
-				 local string2 = "\\draw[fill=white] (temp) circle ("..radius.."-0.1) coordinate (t2);"
-				 local string3 = "\\draw[] (t2) ++("..angle..":"..radius..") -- ++("..angle..":1) ++("..angle..":1.5) node {$n_{d}$};"
-				 tex.print(string..string2..string3)
-      elseif (i <= max_branch - 2) then
-				 local string = "\\draw[] ("..x.." ,"..originY.." ) arc (0:"..angle..":1.5) -- node[above,sloped] {\\tiny $r_{"..i.."}$} ++("..angle..":"..lenght..")  --++("..angle..":1) coordinate (temp);"
-				 local string2 = "\\draw[fill=white] (temp) circle ("..radius.."-0.1) coordinate (t2);"
-				 local string3 = "\\draw[] (t2) ++("..angle..":"..radius..") -- ++("..angle..":1) ++("..angle..":1.5) node {$n_{"..i.."}$};"
-				 tex.print(string..string2..string3)
-      end
-      target_branch = 1
-      margin = 360/max_branch * 0.40
-      fir_angle = 360/max_branch * (target_branch-1) + margin
-      las_angle = 360/max_branch * (target_branch+1) - margin
-      tikzDrawAlongCircle(4, originX, originY+1, 4, fir_angle, las_angle)
-	 end
-end
-
-function tikzSVD(max_branch, originX, originY, angle)
-	 --Left part
-	 for i = 1,max_branch,1 do
-			tikztensorbranch(originX,originY,1,-i*angle,2,'$n_{'..i..'}$','above right')
-	 end
-	 tikztensorbranch(originX,originY,1,400,0,'','below')
-	 tex.print("\\draw[->] ("..originX.."+7,"..originY..") -- ("..originX.."+11,"..originY..");")
-	 tex.print("\\node at ("..originX.."+9,"..originY.."+1.5) {SVD};")
-	 local firstA = originX+18;
-	 
-	 --Right part
-	 tikztensorbranch(firstA,originY,1,-1*angle,2,'$n_{1}$','above right')
-	 tikztensorbranch(firstA,originY,1,-2*angle,2,'','above right')
-	 tikztensorbranch(firstA,originY,1,400,0,'','below')
-	 tex.print("\\draw[fill=black] ("..firstA..","..originY..") circle (1cm);")
-	 tex.print("\\draw[fill=white] ("..firstA..","..originY.."+1) arc (90:270:1);")
-	 tikzlegend(firstA+2, originY, 'above', '$r$')
-
-	 local firstB = firstA+4;
-	 tikztensorbranch(firstB,originY,1,-1*angle,2,'','above right')
-	 tikztensorbranch(firstB,originY,1,-2*angle,2,'','above right')
-	 tikztensorbranch(firstB,originY,1,400,0,'','below')
-	 tikzlegend(firstB+2, originY, 'above', '$r$')
-
-	 local firstC = firstB+4;
-	 tikztensorbranch(firstC,originY,1,-1*angle,2,'','above right')
-	 tikztensorbranch(firstC,originY,1,-2*angle,2,'$n_{2}$','above right')
-	 tikztensorbranch(firstC,originY,1,400,0,'','below')
-	 tex.print("\\draw[fill=black] ("..firstC..","..originY.."+1) arc (90:270:1);")
-end
-
-function tikzDrawAlongCircle(nb_dots, origin_x, origin_y, radius, angle1, angle2)
-	 local function draw_dot_at_angle(angle)
-      local x = origin_x + radius * math.cos(math.rad(angle))
-      local y = origin_y + radius * math.sin(math.rad(angle))
-      tex.sprint(string.format("\\filldraw[black] (%f,%f) circle (%f pt);", x, y, radius))
-	 end
-	 local angle_step = (angle2 - angle1) / (nb_dots-1)
-	 for i=0,nb_dots-1 do
-      draw_dot_at_angle(angle1 + i * angle_step)
-	 end
-end
-
-function tikztensorbranch(origin_x, origin_y, radius, angle, lenght, label)
-	 local x = origin_x + radius
-	 local string = string.format("\\draw[] (%f ,%f ) arc (0:%f:1cm) -- ++(%f:%f) ++(%f:%f) node {%s};", 
-																x, origin_y, angle, angle, lenght, angle, 1, label)
-	 tex.print(string)
-end
-
-function tikztensorbranchCustom(max_branch, origin_x, origin_y, radius, d_branch)
-	 local angle = 360/max_branch;
-	 for i = 1,max_branch,1 do
-			if ( i == max_branch -1 and max_branch > 3 and d_branch) then
-			elseif (i == max_branch and max_branch > 3 and d_branch)  then
-				 tikztensorbranch(origin_x,origin_y,radius,-i*angle,2,'$n_{d}$')
-				 target_branch = 1
-				 margin = 360/max_branch * 0.40
-				 fir_angle = 360/max_branch * (target_branch-1) + margin
-				 las_angle = 360/max_branch * (target_branch+1) - margin          
-				 tikzDrawAlongCircle(4, origin_x, origin_y, 3.5, fir_angle, las_angle)
-			elseif (i == max_branch and d_branch)  then
-				 tikztensorbranch(origin_x,origin_y,radius,-i*angle,2,'$n_{d}$')
-				 target_branch = 1
-				 margin = 360/max_branch * 0.25
-				 fir_angle = 360/max_branch * (target_branch-1) + margin
-				 las_angle = 360/max_branch * (target_branch) - margin          
-				 tikzDrawAlongCircle(3, origin_x, origin_y, 3.5, fir_angle, las_angle)
-			else
-				 tikztensorbranch(origin_x,origin_y,1,-i*angle,2,'$n_{'..i..'}$','above left')
+	--[[----------------------
+	----     Operator     ----
+	----------------------]]--
+  
+	function tikzLegend(origin_x, origin_y, text, option)
+	  -- default parameters
+	  origin_x = origin_x or 0
+	  origin_y = origin_y or 0
+	  text = text or ''
+	  option = option or ''
+	  -- insert the legend
+	  local legend = string.format("\\node[%s] at (%f,%f) {%s};", option, origin_x, origin_y, text)
+	  tex.print(legend)
+	end
+  
+	function tikzLegend_relative(obj, space, pos, text, option)
+	  -- default parameters
+	  obj = obj or '0,0'
+	  space = space or 1
+	  pos = pos or 'right'
+	  text = text or ''
+	  option = option or ''
+	  -- insert the legend
+	  local legend = string.format("\\node[%s= %f of %s, %s] {%s};", pos, space, obj, option, text)
+	  tex.print(legend)
+	end
+  
+	function tikzLegend_relativeManual(obj, text, option)
+	  -- default parameters
+	  obj = obj or '0,0'
+	  text = text or ''
+	  option = option or 'right = 0.5 of '..obj..''
+	  -- insert the legend
+	  local legend = string.format("\\node[%s] {%s};", option, text)
+	  tex.print(legend)
+	end
+  
+  
+	function tikzArrow_LR(origin_x, origin_y, width, option, label)
+	-- default parameters
+	  origin_x = origin_x or 0
+	  origin_y = origin_y or 0
+	  width = width or 1
+	  option = option or '-stealth'
+	  label = label or ''
+	  -- draw the arrow
+	  local arrow = string.format("\\draw[%s](%s,%s) -- (%s+%s/2,%s) node[above]{%s} -- (%s+%s,%s);",
+	  option, origin_x, origin_y, origin_x, width, origin_y, label, origin_x, width, origin_y)
+	  tex.print(arrow)
+	end
+  
+	function tikzArrow_UD(origin_x, origin_y, width, option, label)
+	-- default parameters
+	origin_x = origin_x or 0
+	origin_y = origin_y or 0
+	width = width or 1
+	option = option or '-stealth'
+	label = label or ''
+	-- draw the arrow
+	local arrow = string.format("\\draw [%s](%s,%s) -- (%s,%s-%s);",
+	option, origin_x, origin_y, origin_x, origin_y, width, label, origin_x, origin_y, width)
+	local name = string.format("\\node[right] at (%s,%s-%s/2) {%s};",
+	origin_x, origin_y, width, label)
+	tex.print(arrow..name)
+	end
+  
+	-- Can be use for minus relative
+	function tikzArrow_relative(start_p, end_p, style, label)
+	-- default parameters
+	  start_p = start_p or '0,0'
+	  end_p = end_p or '0,0'
+	  style = style or '->, every node/.style={sloped,anchor=south,auto=false}'
+	  label = label or ''
+	-- draw the arrow
+	  local arrow = string.format("\\path[%s] (%s) edge node(testarrow) {%s} (%s);", style, start_p, label, end_p)
+	  tex.print(arrow)
+	end
+  
+	function tikzLineOnCircle(node, opacity)
+		--default parameters
+		opacity = opacity or 0.5
+		-- draw the line
+		local string1 = string.format("\\draw[opacity=%s] (%s.north west) -- (%s.south east);", opacity, node, node)
+		local string2 = string.format("\\draw[opacity=%s] (%s.north) -- (%s.east);", opacity, node, node)
+		local string3 = string.format("\\draw[opacity=%s] (%s.south) -- (%s.west);", opacity, node, node) 
+		tex.print(string1..string2..string3)
+	end
+  
+	function max(a,b)
+	  if a > b then
+		return a
+	  else
+		return b
+	  end
+	end
+  
+	function tikzMinus(origin_x, origin_y, width)
+	-- default parameters
+	origin_x = origin_x or 0
+	origin_y = origin_y or 0
+	width = width or 1
+	-- draw the minus
+	local minus = string.format("\\draw [](%s,%s) --(%s+%s,%s);",
+	origin_x, origin_y, origin_x, width, origin_y)
+	tex.print(minus)
+	end
+  
+	function tikzMinus_relative(start_p, end_p, option)
+	-- default parameters
+	start_p = start_p or '0,0'
+	end_p = end_p or '0,0'
+	option = option or ''
+	-- draw the minus
+	local mid_pos = string.format("($(%s)!0.5!(%s)$)", start_p, end_p)
+	local left_pos = string.format("($%s!0.5!(%s)$)", mid_pos, start_p)
+	local right_pos= string.format("($%s!0.5!(%s)$)", mid_pos, end_p)
+	tex.print("\\draw[] "..left_pos.."--"..right_pos..";")
+	end
+  
+	function tikzPlus(origin_x, origin_y, width)
+	-- default parameters
+	origin_x = origin_x or 0
+	origin_y = origin_y or 0
+	width = width or 1
+	-- draw the plus
+	local height = width/2
+	local hori = string.format("\\draw [](%s,%s) --(%s+%s,%s);",
+	origin_x, origin_y, origin_x, width, origin_y)
+	local verti = string.format("\\draw [](%s+%s/2, %s-%s) --(%s+%s/2, %s+%s);",
+	origin_x, width, origin_y, height, origin_x, width, origin_y, height)
+	tex.print(hori..verti)
+	end
+  
+	function tikzPlus_relative(start_p, end_p, option)
+	-- default parameters
+	start_p = start_p or '0,0'
+	end_p = end_p or '0,0'
+	option = option or '-, every node/.style={sloped,anchor=south,auto=false}'
+	-- draw the plus
+	local mid_pos = string.format("($(%s)!0.5!(%s)$)", start_p, end_p)
+	local left_pos = string.format("($%s!0.5!(%s)$)", mid_pos, start_p)
+	local right_pos= string.format("($%s!0.5!(%s)$)", mid_pos, end_p)
+	local up_pos = string.format("($%s!0.5!90:(%s)$)", mid_pos, end_p)
+	local down_pos= string.format("($%s!0.5!270:(%s)$)", mid_pos, end_p)
+	tex.print("\\draw[] "..mid_pos.."--"..up_pos..";")
+	tex.print("\\draw[] "..mid_pos.."--"..down_pos..";")
+	tex.print("\\draw[] "..left_pos.."--"..right_pos..";")
+	end
+  
+	function tikzEqual(origin_x, origin_y, width)
+	-- default parameters
+	origin_x = origin_x or 0
+	origin_y = origin_y or 0
+	width = width or 1
+	-- draw the equal
+	local height = width/2
+	local upper = string.format("\\draw[](%s,%s+%s) --(%s+%s,%s+%s);",
+	origin_x, origin_y, height, origin_x, width, origin_y, height)
+	local lower = string.format("\\draw[](%s,%s) --(%s+%s,%s);",
+	origin_x, origin_y, origin_x, width, origin_y)
+	tex.print(upper..lower)
+	end
+  
+	function tikzEqual_relative(start_p, end_p, lenght, separation_space)
+	-- default parameters
+	start_p = start_p or '0,0'
+	end_p = end_p or '0,0'
+	lenght = lenght or 0.3
+	separation_space = separation_space or 0.1
+	-- draw the equal
+	local separation_edge = 2*separation_space
+	local mid_pos    = string.format("\\node (mid) at ($(%s)!0.5! (%s)$) {};",   start_p, end_p)
+	local up_pos     = string.format("\\node (up) at ($(mid)!%s!90:(%s)$) {};",  separation_space, end_p)
+	local down_pos   = string.format("\\node (down) at ($(mid)!%s!270:(%s)$) {};", separation_space, end_p)
+	local up_left    = string.format("\\node (upleft) at ($(%s)!%s!90:(mid)$) {};", start_p, separation_space)
+	local up_right    = string.format("\\node (upright) at ($(%s)!%s!270:(mid)$) {};", end_p, separation_space)
+	local down_left    = string.format("\\node (downleft) at ($(%s)!%s!270:(mid)$) {};", start_p, separation_space)
+	local down_right    = string.format("\\node (downright) at ($(%s)!%s!90:(mid)$) {};", end_p, separation_space)
+	local uplcorner = string.format("\\node (uplcorner) at ($(up)!%s!(upleft)$) {};", lenght)
+	local uprcorner = string.format("\\node (uprcorner) at ($(up)!%s!(upright)$) {};", lenght)
+	local downlcorner = string.format("\\node (downlcorner) at ($(down)!%s!(downleft)$) {};", lenght)
+	local downrcorner = string.format("\\node (downrcorner) at ($(down)!%s!(downright)$) {};", lenght)
+	tex.print(mid_pos..up_pos..down_pos..up_left..up_right..down_left..down_right..uplcorner..uprcorner..downlcorner..downrcorner)
+	tex.print("\\draw[] (downlcorner)--(downrcorner);")
+	tex.print("\\draw[] (uplcorner)--(uprcorner);")
+	end
+  
+	function tikzDrawAlongCircle(nb_dots, origin_x, origin_y, radius, angle1, angle2)
+	  local function draw_dot_at_angle(angle)
+		local x = origin_x + radius * math.cos(math.rad(angle))
+		local y = origin_y + radius * math.sin(math.rad(angle))
+		tex.sprint(string.format("\\filldraw[black] (%f,%f) circle (%f pt);", x, y, 1))
+	  end
+	  local angle_step = (angle2 - angle1) / (nb_dots-1)
+	  for i=0,nb_dots-1 do
+		draw_dot_at_angle(angle1 + i * angle_step)
+	  end
+	end
+  
+	function tikzDrawAlongCircle_relative(start_p, end_p)
+	  local style = 'ultra thick,dotted, dash pattern=on 2pt off 0.5cm'
+	  local string = string.format("\\draw[%s] (%s) to[bend right] (%s);", style, start_p, end_p)
+	  tex.print(string)
+	end
+  
+	--[[----------------------
+	----    Matrix draw   ----
+	----------------------]]--
+  
+	function tikzFactor(origin_x, origin_y, width, height, obj_name, label, color, fill_color)
+	  --default parameter
+	  origin_x = origin_x or 0
+	  origin_y = origin_y or 0
+	  width = width or 1
+	  height = height or 1
+	  obj_name = obj_name or ''
+	  label = label or ''
+	  color = color or 'black'
+	  fill_color = fill_color or 'white'
+	  --draw the factor
+	  local factor = string.format("\\node[draw, rectangle, minimum width=%fcm, minimum height=%fcm, color=%s, fill=%s] (%s) at (%f,%f) {%s};", width, height, color, fill_color, obj_name, origin_x, origin_y, label)
+	  tex.print(factor)
+	end
+  
+	function tikzFactor_relative(obj, obj_name, label, option)
+	  --default parameter
+	  obj = obj or '0,0'
+	  obj_name = obj_name or ''
+	  label = label or ''
+	  option = option or 'draw, rectangle, right= 1 of '..obj..', minimum width=1cm, minimum height=1cm'
+	  --draw the factor
+	  local factor = string.format("\\node[%s] (%s) {%s};", option, obj_name, label)
+	  tex.print(factor)
+	end
+  
+	-- Deprecated
+	function tikzPolygon(origin_x, origin_y, width, height, label, style, fill)
+	-- default parameters
+	origin_x = origin_x or 0
+	origin_y = origin_y or 0
+	width = width or 1
+	height = height or 1
+	label = label or ''
+	style = style or ''
+	fill = fill or 'white'
+	-- draw the polygon
+	local code1 = string.format("\\draw[style=%s,fill=%s](%s,%s)--(%s+%s,%s) -- (%s+%s,%s+%s) -- (%s,%s+%s) --cycle;",
+	style, fill, origin_x, origin_y, origin_x, width, origin_y, origin_x, width,
+	origin_y,height, origin_x, origin_y, height)
+	local code2 = string.format("\\node[%s] at (%s+%s/2,%s+%s+0.5) {%s};", 
+	style, origin_x,width, origin_y, height, label)
+	tex.print(code1..code2)
+	end
+  
+	-- Deprecated
+	function tikzFactor_deprecated(origin_x, origin_y, width, height, rank, label_U,
+	label_V, style, fill)
+	-- default parameters
+	origin_x = origin_x or 0
+	origin_y = origin_y or 0
+	width = width or 1
+	height = height or 1
+	rank = rank or 0
+	label_U = label_U or ''
+	label_V = label_V or ''
+	style = style or ''
+	fill = fill or 'white'
+	-- draw the factor
+	local factorU = tikzpolygon(origin_x, origin_y, width/2+rank, height, label_U,
+	style, fill)
+	local factorV = tikzpolygon(origin_x+(width/2+rank)+0.5, origin_y+2.2, width,
+	height/2+rank, label_V, style, fill)
+	return origin_x+(width/2+rank)+1
+	end
+  
+	--[[----------------------
+	----    Tensor draw   ----
+	----------------------]]--
+  
+	function tikzCore(origin_x, origin_y, radius, angle, core_name)
+		--default parameter
+		origin_x = origin_x or 0
+		origin_y = origin_y or 0
+		radius = radius or 1
+		angle = angle or 360
+		core_name = core_name or ''
+		--draw the core
+		local string = string.format("\\draw[] (%f+%f ,%f) arc (0:%f:%f cm);",
+		origin_x, radius, origin_y, angle, radius)
+		local name = string.format("\\node[] at (%f,%f) {%s};", origin_x, origin_y, core_name)
+		tex.print(string..name)
+	end
+  
+	function tikzCorewBranch(origin_x, origin_y, radius, angle, core_name, nb_branch, branch_length, branch_name, label_distance)
+		--default parameter
+		origin_x = origin_x or 0
+		origin_y = origin_y or 0
+		radius = radius or 1
+		angle = angle or 360
+		core_name = core_name or ''
+		nb_branch = nb_branch or 1
+		branch_length = branch_length or 0
+		branch_name = branch_name or ''
+		label_distance = label_distance or 1
+		--draw the core
+		local angle_seperation = angle/nb_branch;
+		tex.print(string.format("\\node[] at (%f,%f) {%s};", origin_x, origin_y, core_name))
+		--draw the branches
+		for i=1,nb_branch do
+			local string = string.format("\\draw[] (%f+%f ,%f ) arc (0:%f:%fcm) node[] (branch"..i..") {};", 
+			origin_x, radius, origin_y, (i-1)*angle_seperation, radius)
+			local branch = string.format("\\draw[] (branch"..i..".center) -- ++(%f:%f) ++(%f:%f) node[] {%s};",
+			(i-1)*angle_seperation, branch_length, (i-1)*angle_seperation, label_distance,branch_name[i])
+			tex.print(string..branch)
+		end
+		local string = string.format("\\draw[] (%f+%f ,%f ) arc (0:%f:%fcm) node[] (branch"..nb_branch..") {};",
+		origin_x, radius, origin_y, (nb_branch)*angle_seperation, radius)
+		tex.print(string)
+	end
+  
+	function tikzCoredBranch(origin_x, origin_y, radius, angle, core_name, nb_branch, branch_length, branch_name, label_distance, start_dot, end_dot, tucker)
+		--default parameter
+		origin_x = origin_x or 0
+		origin_y = origin_y or 0
+		radius = radius or 1
+		angle = angle or 360
+		core_name = core_name or ''
+		nb_branch = nb_branch or 1
+		branch_length = branch_length or 0
+		branch_name = branch_name or ''
+		label_distance = label_distance or 1
+		start_dot = start_dot or 1
+		end_dot = end_dot or 1
+		tucker = tucker or false
+		--draw the core
+		style_factor = ''
+		if tucker then
+		  style_factor = 'draw, circle, anchor=center, minimum size=1cm, fill=white'
+		end
+		local angle_seperation = angle/nb_branch;
+		tex.print(string.format("\\node[] at (%f,%f) {%s};", origin_x, origin_y, core_name))
+		--draw the branches
+		for i=1,nb_branch do
+			local string = string.format("\\draw[] (%f+%f ,%f ) arc (0:%f:%fcm) node[] ("..branch_name[i]..") {};", 
+			origin_x, radius, origin_y, (i-1)*angle_seperation, radius)
+			local branch = string.format("\\draw[] ("..branch_name[i]..".center) -- ++(%f:%f) ++(%f:%f) node["..style_factor.."] (dBranch"..i..") {%s};",
+			(i-1)*angle_seperation, branch_length, (i-1)*angle_seperation, label_distance,branch_name[i])
+			tex.print(string..branch)
+			local string_dbranch = string.format("\\node (res"..i..") at ($("..branch_name[i]..")!0.5!(dBranch"..i..")$) {};")
+			tex.print(string_dbranch)
+			if tucker then
+			  local branch = string.format("\\draw[] (dBranch"..i..") -- ++(%f:%f) ++(%f:%f) node[] (end"..i..") {n"..i.."};",
+			  (i-1)*angle_seperation, branch_length, (i-1)*angle_seperation, label_distance)
+			  tex.print(branch)
 			end
-	 end
-	 tikztensorbranch(origin_x,origin_y,1,400,0,'')
-end
-
--- function tikzDrawQR(origin_x, origin_y, radius, angle, lenght)
---   --Left part
---     tikztensorbranch(origin_x, origin_y, radius,-angle,lenght,'$n_{1}$','above right')
---     tikztensorbranch(origin_x, origin_y, radius,-angle*2,lenght,'$n_{2}$','above right')
---     tex.print(string.format("\\draw[->] (%f+7,%f) -- ++(3,0);", origin_x, origin_y))
---     tex.print(string.format("\\node[] at (%f+8,%f+1) {QR};", origin_x, origin_y))
-
---   --Right part
---     origin_x = origin_x + 18
---     tikztensorbranch(origin_x,origin_y,radius,-1*angle,lenght,'$n_{1}$','')
---     tikztensorbranch(origin_x,origin_y,1,-2*angle,lenght,'','above right')
---     --tikztensorbranch(origin_x,origin_y,1,180,0,'','')
---     tikzlegend(origin_x+2, origin_y, 'above', '$r$')
---     tex.print(string.format("\\draw[fill=black] (%f,%f) circle (1cm);", origin_x,origin_y))
---     tex.print(string.format("\\draw[fill=white] (%f,%f+1) arc (90:270:1);", origin_x,origin_y))
---     origin_x = origin_x + 4*radius
---     tikztensorbranch(origin_x,origin_y,radius,-1*angle,lenght,'','above right')
---     tikztensorbranch(origin_x,origin_y,radius,-2*angle,lenght,'$n_{2}$','right')
---     tikztensorbranch(origin_x,origin_y,radius,400,0,'','below')
--- end
-
-
-function tikztensortrain(max_branch, origin_x, origin_y, radius, d_branch)
-	 local branch_lenght = 2*radius;
-	 local x = origin_x;
-	 local height_rank = 1;
-	 for i = 1,max_branch,1 do
-			if (i == max_branch) then
-				 if (d_branch) then
-            tex.print("\\draw[] ("..x..","..origin_y..") node {...};")
-            tex.print("\\draw[] ("..x..","..origin_y+branch_lenght..") node {...};")
-            x = x + radius
-            local string3 = "\\draw[] ("..x..","..origin_y..") -- ++("..branch_lenght..",0);"
-            local lbranch = "\\draw[] ("..x..","..origin_y..") ++("..branch_lenght.."/2,"..height_rank..") node {\\scriptsize $r_{d-1}$};"
-            x = x + branch_lenght + radius
-            local string = "\\draw[] ("..x..","..origin_y..") circle ("..radius..");"
-            local string2 = "\\draw[] ("..x..","..origin_y+radius..") -- ++(0,"..branch_lenght..") ++(0,0.5) node {$n_{d}$};"
-            tex.print(lbranch..string3..string..string2)
-				 else
-            local string = "\\draw[] ("..x..","..origin_y..") circle ("..radius..");"
-            local string2 = "\\draw[] ("..x..","..origin_y+radius..") -- ++(0,"..branch_lenght..") ++(0,0.5) node {$n_{"..i.."}$};"
-            tex.print(string..string2)
-				 end
-			else
-				 local string = "\\draw[] ("..x..","..origin_y..") circle ("..radius..");"
-				 local string2 = "\\draw[] ("..x..","..origin_y+radius..") -- ++(0,"..branch_lenght..") ++(0,0.5) node {$n_{"..i.."}$};"
-				 local string3 = "\\draw[] ("..x+radius..","..origin_y..") -- ++("..branch_lenght..",0);"
-				 local string4 = "\\draw[] ("..x+radius..","..origin_y..") ++("..branch_lenght.."/2,"..height_rank..") node {\\scriptsize $r_{"..i.."}$};"
-				 tex.print(string..string2..string3..string4)
-				 x = x + 2*branch_lenght;
-			end
-	 end
-end
-
-function tikzTensorTrainCore(x, y, radius, contractionLength, node, dimSide, startRank, endRank, color, i)
-	 if(startRank) then
-			if(not node) then
-				 tex.print("\\draw[color="..color.."] ("..x-radius..","..y..") -- ++(-"..contractionLength..",0);")
-			elseif(type(i)=="string") then
-				 tex.print("\\draw[color="..color.."] ("..x-radius..","..y..") -- ++(-"..contractionLength..",0) node [above, color=black] {\\scriptsize $r_{"..i.."-1}$};")
-			else
-				 tex.print("\\draw[color="..color.."] ("..x-radius..","..y..") -- ++(-"..contractionLength..",0) node [above, color=black] {\\scriptsize $r_{".. i-1 .."}$};")
-			end
-	 end
-	 if(node) then
-			tex.print("\\draw[color="..color..", fill] ("..x..","..y..") circle ("..radius..");")
-			tex.print("\\draw[color="..color.."] ("..x..","..y..dimSide..radius..") -- ++(0,"..dimSide..contractionLength..") node [right, color=black] {\\scriptsize $n_{"..i.."}$};")
-	 else
-			tex.print("\\draw[color="..color.."] ("..x..","..y..") node {...};")
-	 end
-	 if(endRank) then
-			if(not node) then
-				 tex.print("\\draw[color="..color.."] ("..x+radius..","..y..") -- ++("..contractionLength..",0);")
-			else
-				 tex.print("\\draw[color="..color.."] ("..x+radius..","..y..") -- ++("..contractionLength..",0) node [above, color=black] {\\scriptsize $r_{"..i.."}$};")
-			end
-	 end
-end
-
-function tikzTensorTrain(originX, originY, radius, contractionLength, length, startRank, endRank, contiguous, color, dimSide, startIdx)
-	 for i = 1,length,1 do
-			local x = originX + (i-1) * (2*radius + 2*contractionLength)
-			local node = not (i == length-1) or contiguous
-			local idx = ((not contiguous) and (i == length)) and "d" or (i+startIdx)
-			local side = ((dimSide=="up") and "+") or ((dimSide=="down") and "-")
-			tikzTensorTrainCore(x, originY, radius, contractionLength, node, side, not (i == 1) or startRank, not (i == length) or endRank, color, idx)
-	 end
-end
-
-function tikzTensorTrainInnerP(originX, originY, radius, contractionLength, length, contiguous, color, startIdx)
-	 tikzTensorTrain(originX, originY, radius, contractionLength, length, false, false, contiguous, color, "up", startIdx)
-	 local y = originY + 2*radius + 2*contractionLength
-	 tikzTensorTrain(originX, y, radius, contractionLength, length, false, false, contiguous, color, "down", startIdx)
-end
-
-function tikzTensorTrainInnerPSplit(originX, originY, radius, contractionLength, length, contiguous, upperSplit, lowerSplit)
-	 local diameter = 2*radius         -- diameter of tensor nodes
-	 local x = originX
-	 local lowerY = originY
-	 local upperY = originY + 2*radius + 2*contractionLength
-
-	 local x1 = x - radius - contractionLength + upperSplit*contractionLength*2 + upperSplit*diameter
-	 local x2 = x - radius - contractionLength + lowerSplit*contractionLength*2 + lowerSplit*diameter
-	 local y1 = upperY + radius*2
-	 local y3 = lowerY - radius*2
-	 local y2 = (y1 + y3) / 2
-	 tex.print("\\draw[dashed] ("..x1..", "..y1..") -- ("..x1..", "..y2..") -- ("..x2..", "..y2..") -- ("..x2..", "..y3..");")
-end
-
-function tikzTensorTrainInnerPBox(originX, originY, radius, contractionLength, length, contiguous, startIdx, endIdx)
-	 tikzTensorTrainInnerPBoxIJ(originX, originY, radius, contractionLength, length, contiguous, startIdx, startIdx, endIdx, endIdx)
-end
-
-function tikzTensorTrainInnerPBoxIJ(originX, originY, radius, contractionLength, length, contiguous, startI, startJ, endI, endJ)
-	 local diameter = 2*radius         -- diameter of tensor nodes
-	 local x = originX
-	 local lowerY = originY
-	 local upperY = originY + 2*radius + 2*contractionLength
-
-	 local x1 = x - radius - contractionLength + startI*contractionLength*2 + startI*diameter
-	 local x2 = x - radius - contractionLength + startJ*contractionLength*2 + startJ*diameter
-	 local x3 = x - radius - contractionLength + endJ*contractionLength*2 + endJ*diameter
-	 local x4 = x - radius - contractionLength + endI*contractionLength*2 + endI*diameter
-	 local y1 = upperY + radius*2
-	 local y3 = lowerY - radius*2
-	 local y2 = (y1 + y3) / 2
-	 tex.print("\\draw[dashed] ("..x1..", "..y1..") -- ("..x1..", "..y2..") -- ("..x2..", "..y2..") -- ("..x2..", "..y3..") -- ("..x3..", "..y3..") -- ("..x3..", "..y2..") -- ("..x4..", "..y2..") -- ("..x4..", "..y1..") -- cycle;")
-end
-
-function tikzlegend (originX, originY, pos, text)
-	 local legend = string.format ("\\node[%s] at (%s,%s) {%s};", pos, originX, originY, text)
-	 tex.print(legend)
-end
-
-function tikzcolor (red, green, blue)
-	 local color = string.format ("{rgb:red,%s;green,%s;blue,%s}", red, green, blue)
-	 return color
-end
-
-function tikzarrow (origin_x, origin_y, width, label)
-	 local arrow = string.format ("\\draw[-stealth](%s,%s) -- (%s+%s/2,%s) node[above]{%s} -- (%s+%s,%s);",
-																origin_x, origin_y, origin_x, width, origin_y, label, origin_x, width, origin_y)
-	 tex.print(arrow)
-end
-
-function tikzarrow_down (origin_x, origin_y, width, style, label)
-	 local arrow = string.format ("\\draw [%s](%s,%s) -- (%s,%s-%s);",
-																style, origin_x, origin_y, origin_x, origin_y, width, label, origin_x, origin_y, width)
-	 local name = string.format ("\\node[right] at (%s,%s-%s/2) {%s};",
-															 origin_x, origin_y, width, label)
-	 tex.print(arrow..name)
-end
-
-function tikzrank (origin_x, origin_y, height, label, style, color)
-	 local rank = string.format ("\\draw[%s, %s] (%s,%s) -- (%s,%s+%s);",
-															 style, color, origin_x, origin_y, origin_x, origin_y, height)
-	 local name = string.format ("\\node[%s] at (%s,%s+%s+0.2) {%s};", 
-															 color, origin_x, origin_y, height, label)
-	 tex.print(rank..name)
-end
-
-function tikzrank_horiz (origin_x, origin_y, height, label, style, color)
-	 local rank = string.format ("\\draw[%s, %s] (%s,%s) -- (%s+%s,%s);",
-															 style, color, origin_x, origin_y+0.2, origin_x, height, origin_y+0.2)
-	 local name = string.format ("\\node[%s] at (%s-0.2,%s) {%s};", 
-															 color, origin_x, origin_y+0.2, label)
-	 tex.print(rank..name)
-end
-
-function tikzpolygon(origin_x, origin_y, width, height, label, style, fill)
-	 if (fill == nil or fill == '') then
-			fill = 'white'
-	 end
-	 local code1 = string.format("\\draw[style=%s,fill=%s](%s,%s)--(%s+%s,%s) -- (%s+%s,%s+%s) -- (%s,%s+%s) --cycle;",
-															 style, fill, origin_x, origin_y, origin_x, width, origin_y, origin_x, width,
-															 origin_y,height, origin_x, origin_y, height)
-	 local code2 =
-			string.format("\\node[%s] at (%s+%s/2,%s+%s+0.5) {%s};", style, origin_x,width, origin_y, height, label)
-	 tex.print(code1..code2)
-end
-
-function tikzfactor(origin_x, origin_y, width, height, rank, label_U,
-										label_V,
-										style, fill)
-	 local factorU = tikzpolygon(origin_x, origin_y, width/2+rank, height,
-															 label_U,
-															 style, fill)
-	 local factorV = tikzpolygon(origin_x+(width/2+rank)+0.5, origin_y+2.2, width,
-															 height/2+rank, label_V,
-															 style, fill)
-	 return origin_x+(width/2+rank)+1
-end
-
-function tikzminus(origin_x, origin_y, width)
-	 local minus = string.format("\\draw [](%s,%s) --(%s+%s,%s);",
-															 origin_x, origin_y, origin_x, width, origin_y)
-	 tex.print(minus)
-end
-
-function tikzplus(origin_x, origin_y, width, height)
-	 local hori = string.format("\\draw [](%s,%s) --(%s+%s,%s);",
-															origin_x, origin_y, origin_x, width, origin_y)
-	 local verti = string.format("\\draw [](%s+%s/2, %s-%s) --(%s+%s/2, %s+%s);",
-															 origin_x, width, origin_y, height, origin_x, width, origin_y, height)
-	 tex.print(hori..verti)
-end
-
-function tikzequal(origin_x, origin_y, width, height)
-	 local upper = string.format("\\draw [](%s,%s+%s) --(%s+%s,%s+%s);",
-															 origin_x, origin_y, height, origin_x, width, origin_y, height)
-	 local lower = string.format("\\draw [](%s,%s) --(%s+%s,%s);",
-															 origin_x, origin_y, origin_x, width, origin_y)
-	 tex.print(upper..lower)
-end
-\end{luacode*}
+		end
+		local string = string.format("\\draw[] (%f+%f ,%f ) arc (0:%f:%fcm) node[] ("..branch_name[nb_branch]..") {};",
+		origin_x, radius, origin_y, (nb_branch)*angle_seperation, radius)
+		tex.print(string)
+		tikzDrawAlongCircle_relative(string.format("res%s",start_dot), string.format("res%s",end_dot))
+	end
+  
+	function tikzTuckerTTN(max_branch, origin_x, origin_y, label_cores, label_branch, minimum_size, level_distance, sibling_distance, scale)
+	  --default parameter
+	  max_branch = max_branch or 1
+	  origin_x = origin_x or 0
+	  origin_y = origin_y or 0
+	  label_cores = label_cores or ''
+	  label_branch = label_branch or ''
+	  minimum_size = minimum_size or 1
+	  level_distance = level_distance or 1.5
+	  sibling_distance = sibling_distance or 2
+	  scale = scale or 1
+	  --draw the Tucker
+	  tex.print("\\tikzset{scale = "..scale..", semithick, minimum size="..minimum_size.."cm, level distance = "..level_distance.."cm, sibling distance="..sibling_distance.."cm, split/.style = {level distance=}}")
+	  --Tree
+	  local root = string.format("\\node[circle,draw,minimum size="..1.5*minimum_size.."cm] (root) at ("..origin_x..","..origin_y..") {"..label_cores[1].."}")
+	  for i = 1,max_branch,1 do 
+		root = root..string.format("child { node[circle,draw] (u"..i..") {"..label_cores[i+1].."} child { node[] (n"..i..") {$n_"..i.."$} } edge from parent node[sloped,anchor=south,auto=false,above,draw=none]{$r_"..i.."$} }")
+	  end
+	  root = root..";"
+	  tex.print(root)
+	  
+	  tex.print("\\tikzset{scale = 1};")
+	end
+  
+	function tikzTensorTrain(max_branch, origin_x, origin_y, dimension_length, dimension_label, dimension_orientation, rank_length, rank_label, rank_orientation, scale)
+	  --default parameter
+	  max_branch = max_branch or 1
+	  origin_x = origin_x or 0
+	  origin_y = origin_y or 0
+	  dimension_length = dimension_length or 1
+	  dimension_label = dimension_label or ''
+	  dimension_orientation = dimension_orientation or 'down'
+	  rank_length = rank_length or 1 --not used yet
+	  rank_label = rank_label or ''
+	  rank_orientation = rank_orientation or 'right'
+	  scale = scale or 1
+	  
+	  --Set style
+	  tex.print("\\tikzset{scale = "..scale..", sibling distance = "..dimension_length.."cm, level distance = "..dimension_length.."cm, split/.style = {level distance=}}")
+	  
+	  --Tree
+	  local tree = string.format("\\node[circle, draw] (root) at ("..origin_x..","..origin_y..") {"..dimension_label[1].."} child[grow="..dimension_orientation.."] {node (n_1) {$n_1$}} child[grow="..rank_orientation.."]{");
+	  for i = 2,max_branch-1,1 do
+		tree = tree..string.format("node[circle, draw] ("..dimension_label[i]..") {"..dimension_label[i].."} child[grow="..dimension_orientation.."] {node[] (n"..i..") {$n_"..i.."$}} child[grow="..rank_orientation.."]{")
+	  end
+	  tree = tree..string.format("node[circle, draw] ("..dimension_label[max_branch]..") {"..dimension_label[max_branch].."} child[grow="..dimension_orientation.."] {node[] (n"..max_branch..") {$n_"..max_branch.."$} }")
+	  for i = 2,max_branch-1,1 do
+		tree = tree..string.format("edge from parent node[sloped,anchor=south,auto=false,above,draw=none]{"..rank_label[(max_branch+1)-i].."}}")
+	  end
+	  tree = tree.."edge from parent node[sloped,anchor=south,auto=false,above,draw=none]{"..rank_label[1].."}};"
+	  tex.print(tree)
+	  tex.print("\\tikzset{scale = 1};");
+	end
+	
+	function tikzTucker(origin_x, origin_y, radius, angle, core_name, nb_branch, branch_length, branch_name, label_distance, start_dot, end_dot)
+	--default parameter
+	  origin_x = origin_x or 0
+	  origin_y = origin_y or 0
+	  radius = radius or 1
+	  angle = angle or 360
+	  core_name = core_name or ''
+	  nb_branch = nb_branch or 1
+	  branch_length = branch_length or 0
+	  branch_name = branch_name or ''
+	  label_distance = label_distance or 1
+	  start_dot = start_dot or 1
+	  end_dot = end_dot or 1
+	  --draw the core
+	  tikzCoredBranch(origin_x, origin_y, radius, angle, core_name, nb_branch, branch_length, branch_name, label_distance, start_dot, end_dot, true)
+	end
+  \end{luacode*}
+  
