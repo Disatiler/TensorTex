@@ -1,0 +1,149 @@
+\documentclass[]{article}
+\usepackage{tikz}
+\usetikzlibrary{math}
+\usetikzlibrary{calc}
+\usetikzlibrary{fit}
+\usetikzlibrary{positioning} %%WARNING: Using the positioning library will render your images unscalable (if no explicitly nodes are present). 
+\usetikzlibrary{decorations.pathreplacing}
+\usetikzlibrary{decorations.shapes}
+\usetikzlibrary{shapes.geometric}
+\usetikzlibrary{arrows}
+\usepackage{luacode}
+
+\input{lualib.tex}
+
+\begin{document}
+
+This file give an example of how to use Lua in a LaTeX document.
+
+Exemple of tikzLegend :
+\begin{tikzpicture}
+  \node (A) at (4,0) {A};
+  \node (B) at (10,0) {B};
+  \directlua{
+    local originX = 0
+    local originY = 0
+    local name = 'TestLegend'
+    local space = 1
+    local pos = 'below'
+    local nameR = 'TestLegend\\_Relative'
+    % tex.print('\\draw (B);')
+    tikzLegend(originX, originY, name)
+    tikzLegend_relative('A', space, pos, nameR)
+    tikzLegend_relativeManual('A', 'TestLegend\\_RelativeManual', 'right = 0.5 of A')
+  }
+\end{tikzpicture}
+
+Exemple of tikzArrow :
+\begin{tikzpicture}
+  \node (A) at (4,0) {A};
+  \node (B) at (10,0) {B};
+  \node (C) at (7,4) {C};
+  \directlua{
+    tikzArrow_LR(0, 0, 2)
+    tikzArrow_UD(0, 0, 2, 'stealth-')
+    tikzArrow_relative('A', 'B')
+    tikzArrow_relative('A', 'C', '->, every node/.style={sloped,anchor=south,auto=false}', 'TestSlope')
+  }
+\end{tikzpicture}
+
+Exemple of tikzLineOnCircle :
+\begin{tikzpicture}
+  \node (A) at (4,0) {A};
+  \node[draw] (B) at (10,0) {B};
+  \node[draw, circle] (C) at (4,-2) {C};
+  \directlua{
+    tikzLineOnCircle('A', 0.5)
+    tikzLineOnCircle('B', 0.9)
+    tikzLineOnCircle('C', 0.3)
+  }
+\end{tikzpicture}
+
+Exemple of tikzMinus :
+\begin{tikzpicture}
+  \node (A) at (4,0) {A};
+  \node (B) at (10,0) {B};
+  \node (C) at (7,4) {C};
+  \directlua{
+    tikzMinus(1, 0, 2)
+    tikzMinus_relative('A', 'C')
+  }
+\end{tikzpicture}
+
+Exemple of tikzPlus :
+\begin{tikzpicture}
+  \node (A) at (4,0) {A};
+  \node (B) at (10,0) {B};
+  \node (C) at (7,4) {C};
+  \directlua{
+    tikzPlus(1, 0, 2)
+    tikzPlus_relative('A', 'C')
+    tikzPlus_relative('A', 'B')
+  }
+\end{tikzpicture}
+
+Exemple of tikzEqual :
+\begin{tikzpicture}
+  \node (A) at (4,0) {A};
+  \node (B) at (10,0) {B};
+  \node (C) at (7,4) {C};
+  \directlua{
+    tikzEqual(1, 0, 2)
+    tikzEqual_relative('A', 'C')
+    tikzEqual_relative('A', 'B')
+    tikzFactor(0, -4, 2, 2, 'A2')
+    tikzFactor(4, -4, 2, 2, 'B2')
+    tikzEqual_relative('A2', 'B2', 0.4, 0.2)
+    tikzFactor(0, -8, 2, 2, 'A3')
+    tikzFactor(10, -8, 2, 2, 'B3')
+    tikzEqual_relative('A3', 'B3', 0.8, 0.5)
+  }
+\end{tikzpicture}
+
+Exemple of tikzFactor :
+\begin{tikzpicture}
+  \node (A) at (4,0) {A};
+  \node (B) at (10,0) {B};
+  \node (C) at (7,4) {C};
+  \directlua{
+    tikzFactor(1, 0, 2, 2)
+    tikzFactor_relative('A', 'D', 'D')
+    local option = 'draw, rectangle, below= 1 of A, minimum width=1cm, minimum height=2cm, color=red'
+    tikzFactor_relative('A', 'E', 'E', option)
+    local option = 'draw, circle, below= 1 of B, minimum width=1cm, minimum height=2cm, color=red'
+    tikzFactor_relative('B', 'E2', 'E2', option)
+  }
+\end{tikzpicture}
+
+Exemple of tikzTensor :
+
+\begin{tikzpicture}
+  \directlua{
+    local label_cores = {'A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8'}
+    local label_branch = {'r1', 'r2', 'r3', 'r4', 'r5', 'r6', 'r7', 'r8'}
+    local dimension_label = {'n1', 'n2', 'n3', 'n4', 'n5', 'n6', 'n7', 'n8'}
+    local level_distance = 3
+    local sibling_distance = 4
+    tikzCore(1, -2, 0.3, 360, 'A')
+    tikzCorewBranch(6, -2, 1, 360, 'B', 4, 1, {'A1', 'A2', 'A3', 'A4'}, 0.5)
+    tikzTuckerTTN(5, 10, 15, label_cores, label_branch, 0.5, level_distance, sibling_distance, 0.5)
+    tikzTensorTrain(5, 1, -15, 5, label_cores, 'down', 1, label_branch, 'right', 1)
+    local nb_dot = 5
+    local angle_seperation = 360/5
+    local margin = angle_seperation * nb_dot / (nb_dot+1)
+    local las_angle = angle_seperation - margin
+    tikzDrawAlongCircle(5, 0, -20, 1, margin, las_angle)
+    %tikzTucker(0, -20, 1, 'G', 5, 1, {'A1', 'A2', 'A3', 'A4', 'A5'}, 0.5, 5, 1, {'r1', 'r2', 'r3', 'r4', 'r5'})    
+  }
+\end{tikzpicture}
+
+\newpage
+tets
+\begin{tikzpicture}
+  \directlua{
+    tikzTucker(0, 0, 1, 360, 'G', 7, 2, {'A1', 'A2', 'A3', 'A4', 'Ad', 'Ad1', 'Ad2'}, 0.5, 3, 4)
+    % tikzDrawAlongCircle_relative(3, 'A1', 'A2')
+  }
+\end{tikzpicture}
+
+\end{document}
