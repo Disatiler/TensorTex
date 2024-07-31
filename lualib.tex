@@ -355,17 +355,17 @@
 		  style_factor = 'draw, circle, anchor=center, minimum size=1cm, fill=white'
 		end
 		local angle_seperation = angle/nb_branch;
-		tex.print(string.format("\\node[] at (%f,%f) {%s};", origin_x, origin_y, core_name))
+		tex.print(string.format("\\node[] at (%f,%f) {"..core_name.."};", origin_x, origin_y))
 		--draw the branches
 		for i=1,nb_branch do
-			local string = string.format("\\draw[] (%f+%f ,%f ) arc (0:%f:%fcm) node[] ("..branch_name[i]..") {};", 
+			local string = string.format("\\draw[] (%f+%f ,%f ) arc (0:%f:%fcm) node[] (mid"..i..") {};", 
 			origin_x, radius, origin_y, (i-1)*angle_seperation, radius)
-			local branch = string.format("\\draw[] ("..branch_name[i]..".center) -- ++(%f:%f) ++(%f:%f) node["..style_factor.."] (dBranch"..i..") {%s};",
-			(i-1)*angle_seperation, branch_length, (i-1)*angle_seperation, label_distance,branch_name[i])
+			local branch = string.format("\\draw[] (mid"..i..".center) -- ++(%f:%f) ++(%f:%f) node["..style_factor.."] (dBranch"..i..") {"..branch_name[i].."};",
+			(i-1)*angle_seperation, branch_length, (i-1)*angle_seperation, label_distance)
 			tex.print(string..branch)
-			local string_dbranch = string.format("\\node (res"..i..") at ($("..branch_name[i]..")!0.5!(dBranch"..i..")$) {};")
-			tex.print(string_dbranch)
 			if tucker then
+			  local string_dbranch = string.format("\\node (res"..i..") at ($(mid"..i..")!0.5!(dBranch"..i..")$) {};")
+			  tex.print(string_dbranch)
 			  local branch = string.format("\\draw[] (dBranch"..i..") -- ++(%f:%f) ++(%f:%f) node[] (end"..i..") {n"..i.."};",
 			  (i-1)*angle_seperation, branch_length, (i-1)*angle_seperation, label_distance)
 			  tex.print(branch)
@@ -374,7 +374,9 @@
 		local string = string.format("\\draw[] (%f+%f ,%f ) arc (0:%f:%fcm) node[] ("..branch_name[nb_branch]..") {};",
 		origin_x, radius, origin_y, (nb_branch)*angle_seperation, radius)
 		tex.print(string)
-		tikzDrawAlongCircle_relative(string.format("res%s",start_dot), string.format("res%s",end_dot))
+    if tucker then
+		  tikzDrawAlongCircle_relative(string.format("res%s",start_dot), string.format("res%s",end_dot))
+    end
 	end
   
 	function tikzTuckerTTN(max_branch, origin_x, origin_y, label_cores, label_branch, minimum_size, level_distance, sibling_distance, scale)
