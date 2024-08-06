@@ -27,10 +27,12 @@ Exemple of tikzLegend :
     local space = 1
     local pos = 'below'
     local nameR = 'TestLegend\\_Relative'
-    % tex.print('\\draw (B);')
-    tikzLegend(originX, originY, name)
-    tikzLegend_relative('A', space, pos, nameR)
-    tikzLegend_relativeManual('A', 'TestLegend\\_RelativeManual', 'right = 0.5 of A')
+    tex.print('\\draw (B);')
+    % tikzLegend(originX, originY, name)
+    % tikzLegend_relative('A', space, pos, nameR)
+    % tikzLegend_relativeManual('A', 'TestLegend\\_RelativeManual', 'right = 0.5 of A')
+    tikzLegend{originX=originX, originY=originY, text=name}
+    tikzLegend_relative{text=nameR, option='below= 1 of A'}
   }
 \end{tikzpicture}
 
@@ -40,10 +42,14 @@ Exemple of tikzArrow :
   \node (B) at (10,0) {B};
   \node (C) at (7,4) {C};
   \directlua{
-    tikzArrow_LR(0, 0, 2)
-    tikzArrow_UD(0, 0, 2, 'stealth-')
-    tikzArrow_relative('A', 'B')
-    tikzArrow_relative('A', 'C', '->, every node/.style={sloped,anchor=south,auto=false}', 'TestSlope')
+    % tikzArrow_LR(0, 0, 2)
+    % tikzArrow_UD(0, 0, 2, 'stealth-')
+    % tikzArrow_relative('A', 'B')
+    % tikzArrow_relative('A', 'C', '->, every node/.style={sloped,anchor=south,auto=false}', 'TestSlope')
+    tikzArrow_LR{originX=0, originY=0, radius=2}
+    tikzArrow_UD{originX=0, originY=0, radius=2, option='stealth-'}
+    tikzArrow_relative{relativeStart='A', relativeEnd='B'}
+    tikzArrow_relative({relativeStart='A', relativeEnd='C', option='->, every node/.style={sloped,anchor=south,auto=false}', objName='TestSlope'})
   }
 \end{tikzpicture}
 
@@ -65,8 +71,10 @@ Exemple of tikzMinus :
   \node (B) at (10,0) {B};
   \node (C) at (7,4) {C};
   \directlua{
-    tikzMinus(1, 0, 2)
-    tikzMinus_relative('A', 'C')
+    % tikzMinus(1, 0, 2)
+    % tikzMinus_relative('A', 'C')
+    tikzMinus{originX=1, originY=0, radius=2}
+    tikzMinus_relative{relativeStart='A', relativeEnd='C'}
   }
 \end{tikzpicture}
 
@@ -76,9 +84,12 @@ Exemple of tikzPlus :
   \node (B) at (10,0) {B};
   \node (C) at (7,4) {C};
   \directlua{
-    tikzPlus(1, 0, 2)
-    tikzPlus_relative('A', 'C')
-    tikzPlus_relative('A', 'B')
+    % tikzPlus(1, 0, 2)
+    % tikzPlus_relative('A', 'C')
+    % tikzPlus_relative('A', 'B')
+    tikzPlus{originX=1, originY=0, radius=2}
+    tikzPlus_relative{relativeStart='A', relativeEnd='C'}
+    tikzPlus_relative{relativeStart='A', relativeEnd='B'}
   }
 \end{tikzpicture}
 
@@ -88,15 +99,24 @@ Exemple of tikzEqual :
   \node (B) at (10,0) {B};
   \node (C) at (7,4) {C};
   \directlua{
-    tikzEqual(1, 0, 2)
-    tikzEqual_relative('A', 'C')
-    tikzEqual_relative('A', 'B')
-    tikzFactor(0, -4, 2, 2, 'A2')
-    tikzFactor(4, -4, 2, 2, 'B2')
-    tikzEqual_relative('A2', 'B2', 0.4, 0.2)
-    tikzFactor(0, -8, 2, 2, 'A3')
-    tikzFactor(10, -8, 2, 2, 'B3')
-    tikzEqual_relative('A3', 'B3', 0.8, 0.5)
+    % tikzEqual(1, 0, 2)
+    % tikzEqual_relative('A', 'C')
+    % tikzEqual_relative('A', 'B')
+    % tikzFactor(0, -4, 2, 2, 'A2')
+    % tikzFactor(4, -4, 2, 2, 'B2')
+    % tikzEqual_relative('A2', 'B2', 0.4, 0.2)
+    % tikzFactor(0, -8, 2, 2, 'A3')
+    % tikzFactor(10, -8, 2, 2, 'B3')
+    % tikzEqual_relative('A3', 'B3', 0.8, 0.5)
+    tikzEqual{originX=1, originY=0, radius=2}
+    tikzEqual_relative{relativeStart='A', relativeEnd='C', relativeSpace=0.1}
+    tikzEqual_relative{relativeStart='A', relativeEnd='B', relativeSpace=0.1}
+    tikzFactor{originX=0, originY=-4, tensorWidth=2, tensorHeight=2, objName='A2'}
+    tikzFactor{originX=4, originY=-4, objName='B2'}
+    tikzFactor{originX=0, originY=-8, tensorWidth=2, tensorHeight=2, objName='A3'}
+    tikzFactor{originX=10, originY=-8, tensorWidth=2, tensorHeight=2, objName='B3'}
+    tikzEqual_relative{relativeStart='A2', relativeEnd='B2', relativeLength=0.4, relativeSpace=0.2}
+    tikzEqual_relative{relativeStart='A3', relativeEnd='B3', relativeLength=0.4, relativeSpace=0.25}
   }
 \end{tikzpicture}
 
@@ -106,44 +126,176 @@ Exemple of tikzFactor :
   \node (B) at (10,0) {B};
   \node (C) at (7,4) {C};
   \directlua{
-    tikzFactor(1, 0, 2, 2)
-    tikzFactor_relative('A', 'D', 'D')
-    local option = 'draw, rectangle, below= 1 of A, minimum width=1cm, minimum height=2cm, color=red'
-    tikzFactor_relative('A', 'E', 'E', option)
-    local option = 'draw, circle, below= 1 of B, minimum width=1cm, minimum height=2cm, color=red'
-    tikzFactor_relative('B', 'E2', 'E2', option)
+    % tikzFactor(1, 0, 2, 2)
+    % tikzFactor_relative('A', 'D', 'D')
+    % local option = 'draw, rectangle, below= 1 of A, minimum width=1cm, minimum height=2cm, color=red'
+    % tikzFactor_relative('A', 'E', 'E', option)
+    % local option = 'draw, circle, below= 1 of B, minimum width=1cm, minimum height=2cm, color=red'
+    % tikzFactor_relative('B', 'E2', 'E2', option)
+
   }
 \end{tikzpicture}
 
-Exemple of tikzTensor :
+% Exemple of tikzTensor :
 
-\begin{tikzpicture}
-  \directlua{
-    local label_cores = {'A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8'}
-    local label_branch = {'r1', 'r2', 'r3', 'r4', 'r5', 'r6', 'r7', 'r8'}
-    local dimension_label = {'n1', 'n2', 'n3', 'n4', 'n5', 'n6', 'n7', 'n8'}
-    local level_distance = 3
-    local sibling_distance = 4
-    tikzCore(1, -2, 0.3, 360, 'A')
-    tikzCorewBranch(6, -2, 1, 360, 'B', 4, 1, {'A1', 'A2', 'A3', 'A4'}, 0.5)
-    tikzTuckerTTN(5, 10, 15, label_cores, label_branch, 0.5, level_distance, sibling_distance, 0.5)
-    tikzTensorTrain(5, 1, -15, 5, label_cores, 'down', 1, label_branch, 'right', 1)
-    local nb_dot = 5
-    local angle_seperation = 360/5
-    local margin = angle_seperation * nb_dot / (nb_dot+1)
-    local las_angle = angle_seperation - margin
-    tikzDrawAlongCircle(5, 0, -20, 1, margin, las_angle)
-    %tikzTucker(0, -20, 1, 'G', 5, 1, {'A1', 'A2', 'A3', 'A4', 'A5'}, 0.5, 5, 1, {'r1', 'r2', 'r3', 'r4', 'r5'})    
-  }
-\end{tikzpicture}
+% \begin{tikzpicture}
+%   \directlua{
+%     local label_cores = {'A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8'}
+%     local label_branch = {'r1', 'r2', 'r3', 'r4', 'r5', 'r6', 'r7', 'r8'}
+%     local dimension_label = {'n1', 'n2', 'n3', 'n4', 'n5', 'n6', 'n7', 'n8'}
+%     local level_distance = 3
+%     local sibling_distance = 4
+%     tikzCore(1, -2, 0.3, 360, 'A')
+%     tikzCorewBranch(6, -2, 1, 360, 'B', 4, 1, {'A1', 'A2', 'A3', 'A4'}, 0.5)
+%     tikzTuckerTTN(5, 10, 15, label_cores, label_branch, 0.5, level_distance, sibling_distance, 0.5)
+%     tikzTensorTrain(5, 1, -15, 5, label_cores, 'down', 1, label_branch, 'right', 1)
+%     local nb_dot = 5
+%     local angle_seperation = 360/5
+%     local margin = angle_seperation * nb_dot / (nb_dot+1)
+%     local las_angle = angle_seperation - margin
+%     tikzDrawAlongCircle(5, 0, -20, 1, margin, las_angle)
+%     %tikzTucker(0, -20, 1, 'G', 5, 1, {'A1', 'A2', 'A3', 'A4', 'A5'}, 0.5, 5, 1, {'r1', 'r2', 'r3', 'r4', 'r5'})    
+%   }
+% \end{tikzpicture}
+
+% \newpage
+% tets
+% \begin{tikzpicture}
+%   \directlua{
+%     tikzTucker(0, 0, 1, 360, 'G', 7, 2, {'A1', 'A2', 'A3', 'A4', 'Ad', 'Ad1', 'Ad2'}, 0.5, 3, 4)
+%     % tikzDrawAlongCircle_relative(3, 'A1', 'A2')
+%   }
+% \end{tikzpicture}
+
+%   \begin{tikzpicture}[scale=0.30]
+%     \tikzmath{\originX = 0.7; \originY = -7; \scale = 3; \lenghtbranch = 1.5;}
+%     \tikzset{every node/.style={text width=0.9cm, align=center, scale=1}}
+%     % Node
+%     \node[circle,draw] (n1) at ({\originX*\scale},{\originY*\scale}) {$ G^{(1)}$};
+%     \node[circle,draw] (n2) at ({(\originX-\lenghtbranch*1)*\scale},{(\originY-\lenghtbranch)*\scale}) {$ G^{(2)}$};
+%     \node[circle,draw] (n3) at ({(\originX+\lenghtbranch*1)*\scale},{(\originY-\lenghtbranch)*\scale}) {$ G^{(3)}$};
+%     %\draw[] ({(\originX)*\scale},{(\originY-\lenghtbranch)*\scale}) node {...};
+%     \node[circle,draw] (n4) at ({(\originX-\lenghtbranch*2)*\scale},{(\originY-\lenghtbranch*2.5)*\scale}) {$ G^{(d/2)}$};
+%     %\node[circle,draw] (n5) at ({(\originX-\lenghtbranch*1)*\scale},{(\originY-\lenghtbranch*2.5)*\scale}) {$\scriptstyle U^{(2)}$};
+%     %\draw[] ({(\originX)*\scale},{(\originY-\lenghtbranch*2.5)*\scale}) node {...};
+%     %\node[circle,draw] (n6) at ({(\originX+\lenghtbranch*1)*\scale},{(\originY-\lenghtbranch*2.5)*\scale}) {$\scriptstyle U^{(d-1)}$};
+%     \node[circle,draw] (n7) at ({(\originX+\lenghtbranch*2)*\scale},{(\originY-\lenghtbranch*2.5)*\scale}) {$ G^{(d-1)}$};
+%     % Second level
+%     \node[circle,draw] (n8) at ({(\originX-\lenghtbranch*3)*\scale},{(\originY-\lenghtbranch*3.5)*\scale}) {$ U^{(1)}$};
+%     \node[circle,draw] (n9) at ({(\originX-\lenghtbranch*1)*\scale},{(\originY-\lenghtbranch*3.5)*\scale}) {$ U^{(2)}$};
+%     \draw[] ({(\originX)*\scale},{(\originY-\lenghtbranch*2)*\scale}) node {$\dots \dots$};
+%     \node[circle,draw] (n10) at ({(\originX+\lenghtbranch*1)*\scale},{(\originY-\lenghtbranch*3.5)*\scale}) {$ U^{(d-1)}$};
+%     \node[circle,draw] (n11) at ({(\originX+\lenghtbranch*3)*\scale},{(\originY-\lenghtbranch*3.5)*\scale}) {$U^{(d)}$};
+  
+% % Edge
+% \draw (n1) -- (n2);
+% \draw (n1) -- (n3);
+% \draw[color=white] (n2) -- (n4) node[color=black,midway, rotate=55] {$\dots \dots$};
+% \draw[color=white] (n3) -- (n7) node[color=black,midway, rotate=125] {$\dots \dots$};
+% \draw (n4) -- (n8);
+% \draw (n4) -- (n9);
+% \draw (n7) -- (n10);
+% \draw (n7) -- (n11);
+% % Ndim
+% \draw (n8) -- ++(0,-4) ++(0,-1) node {$n_1$};
+% \draw (n9) -- ++(0,-4) ++(0,-1) node {$n_2$};
+% \draw (n10) -- ++(0,-4) ++(0,-1) node {$n_{d-1}$};
+% \draw (n11) -- ++(0,-4) ++(0,-1) node {$n_d$};
+% % Rank
+% \node at ({(\originX-\lenghtbranch)*\scale},{(\originY)*\scale}) {$r_1$};
+% \node at ({(\originX+\lenghtbranch)*\scale},{(\originY)*\scale}) {$r_2$};
+% \node at ({(\originX-\lenghtbranch*2.75)*\scale},{(\originY-\lenghtbranch*2.75)*\scale}) {$r_{d-1}$};
+% \node at ({(\originX-\lenghtbranch*1.25)*\scale},{(\originY-\lenghtbranch*2.75)*\scale}) {$r_{d}$};
+% \node at ({(\originX+\lenghtbranch*1.25)*\scale},{(\originY-\lenghtbranch*2.75)*\scale}) {$r_{2d-3}$};
+% \node at ({(\originX+\lenghtbranch*2.75)*\scale},{(\originY-\lenghtbranch*2.75)*\scale}) {$r_{2d-2}$};
+% \normalsize
+% \end{minipage}
+% \end{tikzpicture}
 
 \newpage
-tets
-\begin{tikzpicture}
-  \directlua{
-    tikzTucker(0, 0, 1, 360, 'G', 7, 2, {'A1', 'A2', 'A3', 'A4', 'Ad', 'Ad1', 'Ad2'}, 0.5, 3, 4)
-    % tikzDrawAlongCircle_relative(3, 'A1', 'A2')
+% \begin{minipage}{0.4\textwidth}
+\begin{tikzpicture}[scale=0.4, baseline=(current bounding box.center)]
+  \directlua{    
+    % Left part
+    local originX = 2;
+    local originY = -5;
+    local radius = 1;
+    local core_name = '$X$';
+    local max_branch = 5;
+    local branch_width = 3;
+    local branch_name = {'$n_{1}$','$n_{2}$','$n_{3}$', '$n_{4}$','$n_{d}$'};
+    local label_seperation = 1;
+    local nb_dot = 4;
+    local d_branch = true;
+    local angle = 360;
+    local tucker = false;
+    
+    local variables=setmetatable({originX=originX, originY=originY, radius=radius, angle=angle, tensorName=core_name, tensorMaxDim=max_branch, tensorEdgeSize=branch_width, tensorInnDimName=branch_name, startDot=4, endDot=5, tensorTucker=tucker, tensorLabel='leftCore', tensorEdgeSize=2, tensorOutDimName=branch_name}, {__index=_G});
+    
+    tikzCoredBranch(variables)
+    
+    local originX = 20;
+    local originY = 10;
+    local branch_name = {'$U^{(1)}$','$U^{(2)}$','$U^{(3)}$','$U^{(4)}$','$U^{(d)}$'};
+    local outdim_name = {'$n_1$','$n_2$','$n_3$', '$n_4$','$n_d$'};
+    local core_name = '$G$';
+    local branch_width = 2;
+    local radius = 1.2;
+    local label_distance = 1.25;
+    local tucker = true;
+  
+    tikzTucker{originX=originX, originY=originY, radius=radius, angle=angle, tensorName=core_name, tensorMaxDim=max_branch, tensorEdgeSize=branch_width, tensorInnDimName=branch_name, startDot=4, endDot=5, tensorOutDimName=outdim_name, tensorLabel='rightCore', tensorTucker=tucker}
+
+    tikzArrow_relative({relativeStart='leftCore', relativeEnd='rightCore', relativeSpace=0.3, option='->, every node/.style={sloped,anchor=south,auto=false}', objName='HOSVD'})
+    
+    local originX = 15;
+    local originY = -5;
+    local branch_name = {'$U^{(1)}$','$U^{(2)}$','$U^{(3)}$','$\\dots$','$U^{(d)}$'};
+    local outdim_name = {'$n_1$','$n_2$','$n_3$', '$n_4$','$n_d$'};
+    local rank_name = {'$r_1$','$r_2$','$r_3$', '$r_{d-1}$'};
+    
+    %tikzTensorTrain(max_branch, originX, originY, 4, branch_name, 'down', 1, rank_name, 'right', 1)
+    tikzTensorTrain({tensorMaxDim=max_branch, originX=originX, originY=originY, tensorOutDimName=outdim_name, tensorInnDimName=rank_name, tensorName=branch_name, treeLevelDistance=5, treeSiblingDistance=4})
+
+    %tikzArrow_relative('leftCore', 'root', 0.3, '->, every node/.style={sloped,anchor=south,auto=false}', 'TTSVD', 0.7)
+    tikzArrow_relative({relativeStart='leftCore', relativeEnd='root', relativeSpace=0.3, option='->, every node/.style={sloped,anchor=south,auto=false}', objName='TTSVD', relativeMid=0.7})
   }
-\end{tikzpicture}
+  \tikzset{level distance=4cm, sibling distance=6cm, split/.style = {level distance=}}
+  \node[circle,draw, minimum size = 1.2cm, label = center : $G^{(1)}$] (root2) at (22,-14) {}
+    child { node[circle,draw, minimum size = 1.2cm, label = center : $G^{(2)}$] (g2) {}
+            child[loosely dashed] { node[circle, draw, solid, minimum size = 1.2cm, label = center : $G^{(d/2)}$] (gd2) {}
+                    child[solid] { node[circle, draw, minimum size = 1.2cm, label = center : $U^{(1)}$] (u1) {}
+                              child { node[] (n1) {$n_1$} } }
+                    child[solid] { node[circle, draw, minimum size = 1.2cm, label = center : $U^{(2)}$] (u2) {} 
+                            child { node[] (n2) {$n_2$} } } } 
+            child[missing] }
+    child { node[circle,draw, minimum size = 1.2cm, label = center : $G^{(3)}$] (g3) {}
+            child[missing]
+            child[loosely dashed] { node[circle,draw, solid, minimum size = 1.2cm, label = center : $G^{(d-1)}$] (gd3) {}
+                    child[solid] { node[circle, draw, minimum size = 1.2cm, label = center : $U^{(d-1)}$] (u4) {} 
+                    child[solid] { node[] (n3) {$n_{d-1}$} } }
+                    child[solid] { node[circle, draw, minimum size = 1.2cm, label = center : $U^{(d)}$] (u5) {}
+                            child { node[] (n4) {$n_{d}$} } } } 
+  };
+  \directlua{
+    % tikzArrow_relative('gd2', 'gd3', 0.3, '-, loosely dashed, every node/.style={sloped,anchor=south,auto=false}')
+    % tikzArrow_relative('leftCore', 'g2', 0.3, '->, every node/.style={sloped,anchor=south,auto=false}', 'HTSVD')
+    tikzArrow_relative({relativeStart='gd2', relativeEnd='gd3', relativeMid=0.5, option='-, loosely dashed, every node/.style={sloped,anchor=south,auto=false}', relativeSpace=0.4})
+    tikzArrow_relative({relativeStart='leftCore', relativeEnd='u4', relativeSpace=0.3, option='->, every node/.style={sloped,anchor=south,auto=false}', objName='HTSVD'})
+  }
+  \end{tikzpicture}
+  
+  \newpage
+  \begin{tikzpicture}
+    \directlua{
+      local originX = 2;
+      local originY = 0;
+      local color = 'red';
+      local text = 'GROSSVD';
+      tikzLegend({originX=originX, originY=originY, color=color, text=text})
+      %tikzLegend(10,0, 'HOSVD')
+    }
+  \end{tikzpicture}
+
 
 \end{document}

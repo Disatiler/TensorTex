@@ -29,6 +29,11 @@
 	  local legend = string.format("\\node[%s] at (%f,%f) {%s};", option, origin_x, origin_y, text)
 	  tex.print(legend)
 	end
+
+	function tikzLegend(nargs)
+		dico = tikzArgDico(nargs)
+		tex.print("\\node["..dico.option.."] at ("..dico.originX..","..dico.originY..") {"..dico.text.."};")
+	end
   
 	function tikzLegend_relative(obj, space, pos, text, option)
 	  -- default parameters
@@ -40,6 +45,11 @@
 	  -- insert the legend
 	  local legend = string.format("\\node[%s= %f of %s, %s] {%s};", pos, space, obj, option, text)
 	  tex.print(legend)
+	end
+
+	function tikzLegend_relative(nargs)
+		dico = tikzArgDico(nargs)
+		tex.print("\\node["..dico.option.."] {"..dico.text.."};")
 	end
   
 	function tikzLegend_relativeManual(obj, text, option)
@@ -65,6 +75,15 @@
 	  option, origin_x, origin_y, origin_x, width, origin_y, label, origin_x, width, origin_y)
 	  tex.print(arrow)
 	end
+
+	function tikzArrow_LR(nargs)
+	-- default parameters
+	  dico = tikzArgDico(nargs)
+	  -- draw the arrow
+	  local arrow = string.format("\\draw[%s](%s,%s) -- (%s+%s/2,%s) node[above]{%s} -- (%s+%s,%s);",
+	  dico.option, dico.originX, dico.originY, dico.originX, dico.radius, dico.originY, dico.objName, dico.originX, dico.radius, dico.originY)
+	  tex.print(arrow)
+	end
   
 	function tikzArrow_UD(origin_x, origin_y, width, option, label)
 	-- default parameters
@@ -81,16 +100,40 @@
 	tex.print(arrow..name)
 	end
   
+	function tikzArrow_UD(nargs)
+	-- default parameters
+	dico = tikzArgDico(nargs)
+	-- draw the arrow
+	local arrow = string.format("\\draw [%s](%s,%s) -- (%s,%s-%s);",
+	dico.option, dico.originX, dico.originY, dico.originX, dico.originY, dico.radius, dico.objName, dico.originX, dico.originY, dico.radius)
+	local name = string.format("\\node[right] at (%s,%s-%s/2) {%s};",
+	dico.originX, dico.originY, dico.radius, dico.objName)
+	tex.print(arrow..name)
+	end
+
 	-- Can be use for minus relative
-	function tikzArrow_relative(start_p, end_p, style, label)
+	function tikzArrow_relative(start_p, end_p, space_separation, style, label, mid_pos)
 	-- default parameters
 	  start_p = start_p or '0,0'
 	  end_p = end_p or '0,0'
+	  space_separation = space_separation or 0.5
 	  style = style or '->, every node/.style={sloped,anchor=south,auto=false}'
 	  label = label or ''
-	-- draw the arrow
-	  local arrow = string.format("\\path[%s] (%s) edge node(testarrow) {%s} (%s);", style, start_p, label, end_p)
-	  tex.print(arrow)
+	  mid_pos = mid_pos or 0.5
+		local mid_pos = string.format("($(%s)!"..mid_pos.."!(%s)$)", start_p, end_p)
+		local left_pos = string.format("($%s!"..space_separation.."!(%s)$)", mid_pos, start_p)
+		local right_pos= string.format("($%s!"..space_separation.."!(%s)$)", mid_pos, end_p)
+		tex.print("\\path["..style.."] "..left_pos.." edge node(testarrow) {"..label.."}"..right_pos..";")
+	end
+
+	-- Can be use for minus relative
+	function tikzArrow_relative(nargs)
+	-- default parameters
+	  dico = tikzArgDico(nargs)
+		local mid_pos = string.format("($(%s)!"..dico.relativeMid.."!(%s)$)", dico.relativeStart, dico.relativeEnd)
+		local left_pos = string.format("($%s!"..dico.relativeSpace.."!(%s)$)", mid_pos, dico.relativeStart)
+		local right_pos= string.format("($%s!"..dico.relativeSpace.."!(%s)$)", mid_pos, dico.relativeEnd)
+		tex.print("\\path["..dico.option.."] "..left_pos.." edge node(testarrow) {"..dico.objName.."}"..right_pos..";")
 	end
   
 	function tikzLineOnCircle(node, opacity)
@@ -121,6 +164,15 @@
 	origin_x, origin_y, origin_x, width, origin_y)
 	tex.print(minus)
 	end
+
+	function tikzMinus(nargs)
+	-- default parameters
+	dico = tikzArgDico(nargs)
+	-- draw the minus
+	local minus = string.format("\\draw [](%s,%s) --(%s+%s,%s);",
+	dico.originX, dico.originY, dico.originX, dico.radius, dico.originY)
+	tex.print(minus)
+	end
   
 	function tikzMinus_relative(start_p, end_p, option)
 	-- default parameters
@@ -131,6 +183,16 @@
 	local mid_pos = string.format("($(%s)!0.5!(%s)$)", start_p, end_p)
 	local left_pos = string.format("($%s!0.5!(%s)$)", mid_pos, start_p)
 	local right_pos= string.format("($%s!0.5!(%s)$)", mid_pos, end_p)
+	tex.print("\\draw[] "..left_pos.."--"..right_pos..";")
+	end
+
+	function tikzMinus_relative(nargs)
+	-- default parameters
+	dico = tikzArgDico(nargs)
+	-- draw the minus
+	local mid_pos = string.format("($(%s)!0.5!(%s)$)", dico.relativeStart, dico.relativeEnd)
+	local left_pos = string.format("($%s!0.5!(%s)$)", mid_pos, dico.relativeStart)
+	local right_pos= string.format("($%s!0.5!(%s)$)", mid_pos, dico.relativeEnd)
 	tex.print("\\draw[] "..left_pos.."--"..right_pos..";")
 	end
   
@@ -145,6 +207,18 @@
 	origin_x, origin_y, origin_x, width, origin_y)
 	local verti = string.format("\\draw [](%s+%s/2, %s-%s) --(%s+%s/2, %s+%s);",
 	origin_x, width, origin_y, height, origin_x, width, origin_y, height)
+	tex.print(hori..verti)
+	end
+
+	function tikzPlus(nargs)
+	-- default parameters
+	dico = tikzArgDico(nargs)
+	-- draw the plus
+	local height = dico.radius/2
+	local hori = string.format("\\draw [](%s,%s) --(%s+%s,%s);",
+	dico.originX, dico.originY, dico.originX, dico.radius, dico.originY)
+	local verti = string.format("\\draw [](%s+%s/2, %s-%s) --(%s+%s/2, %s+%s);",
+	dico.originX, dico.radius, dico.originY, height, dico.originX, dico.radius, dico.originY, height)
 	tex.print(hori..verti)
 	end
   
@@ -163,6 +237,20 @@
 	tex.print("\\draw[] "..mid_pos.."--"..down_pos..";")
 	tex.print("\\draw[] "..left_pos.."--"..right_pos..";")
 	end
+
+	function tikzPlus_relative(nargs)
+	-- default parameters
+	dico = tikzArgDico(nargs)
+	-- draw the plus
+	local mid_pos = string.format("($(%s)!0.5!(%s)$)", dico.relativeStart, dico.relativeEnd)
+	local left_pos = string.format("($%s!0.5!(%s)$)", mid_pos, dico.relativeStart)
+	local right_pos= string.format("($%s!0.5!(%s)$)", mid_pos, dico.relativeEnd)
+	local up_pos = string.format("($%s!0.5!90:(%s)$)", mid_pos, dico.relativeEnd)
+	local down_pos= string.format("($%s!0.5!270:(%s)$)", mid_pos, dico.relativeEnd)
+	tex.print("\\draw[] "..mid_pos.."--"..up_pos..";")
+	tex.print("\\draw[] "..mid_pos.."--"..down_pos..";")
+	tex.print("\\draw[] "..left_pos.."--"..right_pos..";")
+	end
   
 	function tikzEqual(origin_x, origin_y, width)
 	-- default parameters
@@ -175,6 +263,18 @@
 	origin_x, origin_y, height, origin_x, width, origin_y, height)
 	local lower = string.format("\\draw[](%s,%s) --(%s+%s,%s);",
 	origin_x, origin_y, origin_x, width, origin_y)
+	tex.print(upper..lower)
+	end
+
+	function tikzEqual(nargs)
+	-- default parameters
+	dico = tikzArgDico(nargs)
+	-- draw the equal
+	local height = dico.radius/2
+	local upper = string.format("\\draw[](%s,%s+%s) --(%s+%s,%s+%s);",
+	dico.originX, dico.originY, height, dico.originX, dico.radius, dico.originY, height)
+	local lower = string.format("\\draw[](%s,%s) --(%s+%s,%s);",
+	dico.originX, dico.originY, dico.originX, dico.radius, dico.originY)
 	tex.print(upper..lower)
 	end
   
@@ -201,6 +301,26 @@
 	tex.print("\\draw[] (downlcorner)--(downrcorner);")
 	tex.print("\\draw[] (uplcorner)--(uprcorner);")
 	end
+
+	function tikzEqual_relative(nargs)
+	-- default parameters
+	dico = tikzArgDico(nargs)
+	-- draw the equal
+	local mid_pos    = string.format("\\node (mid) at ($(%s)!0.5! (%s)$) {};",   dico.relativeStart, dico.relativeEnd)
+	local up_pos     = string.format("\\node (up) at ($(mid)!%s!90:(%s)$) {};",  dico.relativeSpace, dico.relativeEnd)
+	local down_pos   = string.format("\\node (down) at ($(mid)!%s!270:(%s)$) {};", dico.relativeSpace, dico.relativeEnd)
+	local up_left    = string.format("\\node (upleft) at ($(%s)!%s!90:(mid)$) {};", dico.relativeStart, dico.relativeSpace)
+	local up_right    = string.format("\\node (upright) at ($(%s)!%s!270:(mid)$) {};", dico.relativeEnd, dico.relativeSpace)
+	local down_left    = string.format("\\node (downleft) at ($(%s)!%s!270:(mid)$) {};", dico.relativeStart, dico.relativeSpace)
+	local down_right    = string.format("\\node (downright) at ($(%s)!%s!90:(mid)$) {};", dico.relativeEnd, dico.relativeSpace)
+	local uplcorner = string.format("\\node (uplcorner) at ($(up)!%s!(upleft)$) {};", dico.relativeLength)
+	local uprcorner = string.format("\\node (uprcorner) at ($(up)!%s!(upright)$) {};", dico.relativeLength)
+	local downlcorner = string.format("\\node (downlcorner) at ($(down)!%s!(downleft)$) {};", dico.relativeLength)
+	local downrcorner = string.format("\\node (downrcorner) at ($(down)!%s!(downright)$) {};", dico.relativeLength)
+	tex.print(mid_pos..up_pos..down_pos..up_left..up_right..down_left..down_right..uplcorner..uprcorner..downlcorner..downrcorner)
+	tex.print("\\draw[] (downlcorner)--(downrcorner);")
+	tex.print("\\draw[] (uplcorner)--(uprcorner);")
+	end
   
 	function tikzDrawAlongCircle(nb_dots, origin_x, origin_y, radius, angle1, angle2)
 	  local function draw_dot_at_angle(angle)
@@ -219,6 +339,13 @@
 	  local string = string.format("\\draw[%s] (%s) to[bend right] (%s);", style, start_p, end_p)
 	  tex.print(string)
 	end
+
+	-- function tikzDrawAlongCircle_relative(nargs)
+	--   dico = tikzArgDico(nargs)
+	--   local style = 'ultra thick,dotted, dash pattern=on 2pt off 0.5cm'
+	--   local string = string.format("\\draw[%s] (%s) to[bend right] (%s);", style, dico.relativeStart, dico.relativeEnd)
+	--   tex.print(string)
+	-- end
   
 	--[[----------------------
 	----    Matrix draw   ----
@@ -238,6 +365,14 @@
 	  local factor = string.format("\\node[draw, rectangle, minimum width=%fcm, minimum height=%fcm, color=%s, fill=%s] (%s) at (%f,%f) {%s};", width, height, color, fill_color, obj_name, origin_x, origin_y, label)
 	  tex.print(factor)
 	end
+
+	function tikzFactor(nargs)
+	  --default parameter
+	  dico = tikzArgDico(nargs)
+	  --draw the factor
+	  local factor = string.format("\\node[draw, rectangle, minimum width=%fcm, minimum height=%fcm, color=%s, fill=%s] (%s) at (%f,%f) {%s};", dico.tensorWidth, dico.tensorHeight, dico.tensorColor, dico.tensorFillColor, dico.objName, dico.originX, dico.originY, dico.objName)
+	  tex.print(factor)
+	end
   
 	function tikzFactor_relative(obj, obj_name, label, option)
 	  --default parameter
@@ -247,6 +382,14 @@
 	  option = option or 'draw, rectangle, right= 1 of '..obj..', minimum width=1cm, minimum height=1cm'
 	  --draw the factor
 	  local factor = string.format("\\node[%s] (%s) {%s};", option, obj_name, label)
+	  tex.print(factor)
+	end
+
+	function tikzFactor_relative(nargs)
+	  --default parameter
+	  dico = tikzArgDico(nargs)
+	  --draw the factor
+	  local factor = string.format("\\node[%s] (%s) {%s};", dico.option, dico.objectLabel, dico.objName)
 	  tex.print(factor)
 	end
   
@@ -307,6 +450,16 @@
 		local name = string.format("\\node[] at (%f,%f) {%s};", origin_x, origin_y, core_name)
 		tex.print(string..name)
 	end
+
+	function tikzCore(nargs)
+		--default parameter
+		dico = tikzArgDico(nargs)
+		--draw the core
+		local string = string.format("\\draw[] (%f+%f ,%f) arc (0:%f:%f cm);",
+		dico.originX, dico.radius, dico.originY, dico.angle, dico.radius)
+		local name = string.format("\\node[] (%s) at (%f,%f) {%s};", dico.objName, dico.originX, dico.originY, dico.tensorName)
+		tex.print(string..name)
+	end
   
 	function tikzCorewBranch(origin_x, origin_y, radius, angle, core_name, nb_branch, branch_length, branch_name, label_distance)
 		--default parameter
@@ -334,49 +487,97 @@
 		origin_x, radius, origin_y, (nb_branch)*angle_seperation, radius)
 		tex.print(string)
 	end
-  
-	function tikzCoredBranch(origin_x, origin_y, radius, angle, core_name, nb_branch, branch_length, branch_name, label_distance, start_dot, end_dot, tucker)
+
+	function tikzCorewBranch(nargs)
 		--default parameter
-		origin_x = origin_x or 0
-		origin_y = origin_y or 0
-		radius = radius or 1
-		angle = angle or 360
-		core_name = core_name or ''
-		nb_branch = nb_branch or 1
-		branch_length = branch_length or 0
-		branch_name = branch_name or ''
-		label_distance = label_distance or 1
-		start_dot = start_dot or 1
-		end_dot = end_dot or 1
-		tucker = tucker or false
+		dico = tikzArgDico(nargs)
 		--draw the core
-		style_factor = ''
-		if tucker then
-		  style_factor = 'draw, circle, anchor=center, minimum size=1cm, fill=white'
-		end
-		local angle_seperation = angle/nb_branch;
-		tex.print(string.format("\\node[] at (%f,%f) {"..core_name.."};", origin_x, origin_y))
+		local angle_seperation = dico.angle/dico.tensorMaxDim;
+		tex.print(string.format("\\node[] at (%f,%f) {%s};", dico.originX, dico.originY, dico.tensorName))
 		--draw the branches
-		for i=1,nb_branch do
-			local string = string.format("\\draw[] (%f+%f ,%f ) arc (0:%f:%fcm) node[] (mid"..i..") {};", 
-			origin_x, radius, origin_y, (i-1)*angle_seperation, radius)
-			local branch = string.format("\\draw[] (mid"..i..".center) -- ++(%f:%f) ++(%f:%f) node["..style_factor.."] (dBranch"..i..") {"..branch_name[i].."};",
-			(i-1)*angle_seperation, branch_length, (i-1)*angle_seperation, label_distance)
+		for i=1,dico.tensorMaxDim do
+			local string = string.format("\\draw[] (%f+%f ,%f ) arc (0:%f:%fcm) node[] (branch"..i..") {};", 
+			dico.originX, dico.radius, dico.originY, (i-1)*angle_seperation, dico.radius)
+			local branch = string.format("\\draw[] (branch"..i..".center) -- ++(%f:%f) ++(%f:%f) node[] {%s};",
+			(i-1)*angle_seperation, dico.branchLength, (i-1)*angle_seperation, dico.tensorEdgeSize,dico.tensorOutDimName[i])
 			tex.print(string..branch)
-			if tucker then
-			  local string_dbranch = string.format("\\node (res"..i..") at ($(mid"..i..")!0.5!(dBranch"..i..")$) {};")
-			  tex.print(string_dbranch)
-			  local branch = string.format("\\draw[] (dBranch"..i..") -- ++(%f:%f) ++(%f:%f) node[] (end"..i..") {n"..i.."};",
-			  (i-1)*angle_seperation, branch_length, (i-1)*angle_seperation, label_distance)
+		end
+		local string = string.format("\\draw[] (%f+%f ,%f ) arc (0:%f:%fcm) node[] (branch"..dico.tensorMaxDim..") {};",
+		dico.originX, dico.radius, dico.originY, (dico.tensorMaxDim)*angle_seperation, dico.radius)
+		tex.print(string)
+	end
+  
+	-- function tikzCoredBranch(origin_x, origin_y, radius, angle, core_name, nb_branch, branch_length, branch_name, start_dot, end_dot, tucker, outdim_name, label_relative)
+	-- 	--default parameter
+	-- 	origin_x = origin_x or 0
+	-- 	origin_y = origin_y or 0
+	-- 	radius = radius or 1
+	-- 	angle = angle or 360
+	-- 	core_name = core_name or ''
+	-- 	nb_branch = nb_branch or 1
+	-- 	branch_length = branch_length or 0
+	-- 	branch_name = branch_name or ''
+	-- 	start_dot = start_dot or 1
+	-- 	end_dot = end_dot or 1
+	-- 	tucker = tucker or false
+	-- 	outdim_name = outdim_name or ''
+	-- 	label_relative = label_relative or 'coreTucker'
+	-- 	--draw the core
+	-- 	style_factor = ''
+	-- 	if tucker then
+	-- 	  style_factor = 'draw, circle, anchor=center, minimum size=1cm, fill=white'
+	-- 	end
+	-- 	local angle_seperation = angle/nb_branch;
+	-- 	tex.print(string.format("\\node[minimum size = 1cm, label = center : "..core_name.."] ("..label_relative..") at (%f,%f) {};", origin_x, origin_y))
+	-- 	--draw the branches
+	-- 	for i=1,nb_branch do
+	-- 		local string = string.format("\\draw[] (%f+%f ,%f) arc (0:%f:%fcm) node[] (mid"..i..") {};", 
+	-- 		origin_x, radius, origin_y, (i-1)*angle_seperation, radius)
+	-- 		local branch = string.format("\\draw[] (mid"..i..".center) -- ++(%f:%f) ++(%f:%f) node[minimum size = 1.2cm, label = center : "..branch_name[i]..","..style_factor.."] (dBranch"..i..") {};",
+	-- 		(i-1)*angle_seperation, branch_length, (i-1)*angle_seperation, radius)
+	-- 		tex.print(string..branch)
+	-- 		local string_dbranch = string.format("\\node (res"..i..") at ($(mid"..i..")!0.5!(dBranch"..i..")$) {};")
+	-- 		tex.print(string_dbranch)
+	-- 		if tucker then
+	-- 		  local branch = string.format("\\draw[] (dBranch"..i..") -- ++(%f:%f) ++(%f:%f) node[] (end"..i..") {"..outdim_name[i].."};",
+	-- 		  (i-1)*angle_seperation, branch_length, (i-1)*angle_seperation, radius)
+	-- 		  tex.print(branch)
+	-- 		end
+	-- 	end
+	-- 	local string = string.format("\\draw[] (%f+%f ,%f ) arc (0:%f:%fcm) node[] ("..branch_name[nb_branch]..") {};",
+	-- 	origin_x, radius, origin_y, (nb_branch)*angle_seperation, radius)
+	-- 	tex.print(string)
+	-- 	tikzDrawAlongCircle_relative(string.format("res%s",start_dot), string.format("res%s",end_dot))
+	-- end
+
+	function tikzCoredBranch(nargs)
+	 	--default parameter
+	 	dico = tikzArgDico(nargs)
+		--draw the core
+	 	style_factor = ''
+	 	if dico.tensorTucker then
+	 	  style_factor = 'draw, circle, anchor=center, minimum size=1cm, fill=white'
+	 	end
+	 	local angle_seperation = dico.angle/dico.tensorMaxDim;
+	 	tex.print(string.format("\\node[minimum size = "..dico.radius.."cm, label = center : "..dico.tensorName.."] ("..dico.tensorLabel..") at (%f,%f) {};", dico.originX, dico.originY))
+	 	--draw the branches
+	 	for i=1,dico.tensorMaxDim do
+	 		local string = string.format("\\draw[] (%f+%f ,%f) arc (0:%f:%fcm) node[] (mid"..i..") {};",
+	 		dico.originX, dico.radius, dico.originY, (i-1)*angle_seperation, dico.radius)
+	 		local branch = string.format("\\draw[] (mid"..i..".center) -- ++(%f:%f) ++(%f:%f) node[minimum size = 1.2cm, label = center : "..dico.tensorInnDimName[i]..","..style_factor.."] (dBranch"..i..") {};",	(i-1)*angle_seperation, dico.tensorEdgeSize, (i-1)*angle_seperation, dico.radius)
+	 		tex.print(string..branch)
+	 		local string_dbranch = string.format("\\node (res"..i..") at ($(mid"..i..")!0.5!(dBranch"..i..")$) {};")
+			tex.print(string_dbranch)
+			if dico.tensorTucker then
+			  local branch = string.format("\\draw[] (dBranch"..i..") -- ++(%f:%f) ++(%f:%f) node[] (end"..i..") {"..dico.tensorOutDimName[i].."};",
+			  (i-1)*angle_seperation, dico.tensorEdgeSize, (i-1)*angle_seperation, dico.radius)
 			  tex.print(branch)
 			end
-		end
-		local string = string.format("\\draw[] (%f+%f ,%f ) arc (0:%f:%fcm) node[] ("..branch_name[nb_branch]..") {};",
-		origin_x, radius, origin_y, (nb_branch)*angle_seperation, radius)
+	 	end
+		local string = string.format("\\draw[] (%f+%f ,%f ) arc (0:%f:%fcm) node[] ("..dico.tensorInnDimName[dico.tensorMaxDim]..") {};",
+		dico.originX, dico.radius, dico.originY, (dico.tensorMaxDim)*angle_seperation, dico.radius)
 		tex.print(string)
-    if tucker then
-		  tikzDrawAlongCircle_relative(string.format("res%s",start_dot), string.format("res%s",end_dot))
-    end
+		tikzDrawAlongCircle_relative(string.format("res%s",dico.startDot), string.format("res%s",dico.endDot))
 	end
   
 	function tikzTuckerTTN(max_branch, origin_x, origin_y, label_cores, label_branch, minimum_size, level_distance, sibling_distance, scale)
@@ -402,6 +603,22 @@
 	  
 	  tex.print("\\tikzset{scale = 1};")
 	end
+
+	function tikzTuckerTTN(nargs)
+	  --default parameter
+	  dico = tikzArgDico(nargs)
+	  --draw the Tucker
+	  tex.print("\\tikzset{scale = "..dico.scale..", semithick, minimum size="..dico.tensorCoreMinSize.."cm, level distance = "..dico.tensorLevelDistance.."cm, sibling distance="..dico.tensorSiblingDistance.."cm, split/.style = {level distance=}}")
+	  --Tree
+	  local root = string.format("\\node[circle,draw,minimum size="..1.5*dico.tensorCoreMinSize.."cm] (root) at ("..dico.originX..","..dico.originY..") {"..dico.tensorInnDimName[1].."}")
+	  for i = 1,dico.tensorMaxDim,1 do 
+		root = root..string.format("child { node[circle,draw] (u"..i..") {"..dico.tensorInnDimName[i+1].."} child { node[] (n"..i..") {"..dico.tensorOutDimName[i].."} } edge from parent node[sloped,anchor=south,auto=false,above,draw=none]{"..dico.tensorInnDimName[i].."} }")
+	  end
+	  root = root..";"
+	  tex.print(root)
+	  
+	  tex.print("\\tikzset{scale = 1};")
+	end
   
 	function tikzTensorTrain(max_branch, origin_x, origin_y, dimension_length, dimension_label, dimension_orientation, rank_length, rank_label, rank_orientation, scale)
 	  --default parameter
@@ -420,11 +637,11 @@
 	  tex.print("\\tikzset{scale = "..scale..", sibling distance = "..dimension_length.."cm, level distance = "..dimension_length.."cm, split/.style = {level distance=}}")
 	  
 	  --Tree
-	  local tree = string.format("\\node[circle, draw] (root) at ("..origin_x..","..origin_y..") {"..dimension_label[1].."} child[grow="..dimension_orientation.."] {node (n_1) {$n_1$}} child[grow="..rank_orientation.."]{");
+	  local tree = string.format("\\node[circle, draw, minimum size = 1.2cm, label = center : "..dimension_label[1].."] (root) at ("..origin_x..","..origin_y..") {} child[grow="..dimension_orientation.."] {node (n_1) {$n_1$}} child[grow="..rank_orientation.."]{");
 	  for i = 2,max_branch-1,1 do
-		tree = tree..string.format("node[circle, draw] ("..dimension_label[i]..") {"..dimension_label[i].."} child[grow="..dimension_orientation.."] {node[] (n"..i..") {$n_"..i.."$}} child[grow="..rank_orientation.."]{")
+		tree = tree..string.format("node[circle, draw, minimum size = 1.2cm, label = center : "..dimension_label[i].."] (node"..i..") {} child[grow="..dimension_orientation.."] {node[] (n"..i..") {$n_"..i.."$}} child[grow="..rank_orientation.."]{")
 	  end
-	  tree = tree..string.format("node[circle, draw] ("..dimension_label[max_branch]..") {"..dimension_label[max_branch].."} child[grow="..dimension_orientation.."] {node[] (n"..max_branch..") {$n_"..max_branch.."$} }")
+	  tree = tree..string.format("node[circle, draw, minimum size = 1.2cm, label = center : "..dimension_label[max_branch].."] (node"..max_branch..") {} child[grow="..dimension_orientation.."] {node[] (n"..max_branch..") {$n_"..max_branch.."$} }")
 	  for i = 2,max_branch-1,1 do
 		tree = tree..string.format("edge from parent node[sloped,anchor=south,auto=false,above,draw=none]{"..rank_label[(max_branch+1)-i].."}}")
 	  end
@@ -432,22 +649,121 @@
 	  tex.print(tree)
 	  tex.print("\\tikzset{scale = 1};");
 	end
+
+	function tikzTensorTrain(nargs)
+		--default parameter
+		dico = tikzArgDico(nargs)
+		-- Set style
+		tex.print("\\tikzset{scale = "..dico.scale..", sibling distance = "..dico.treeSiblingDistance.."cm, level distance = "..dico.treeLevelDistance.."cm, split/.style = {level distance=}}")
+		-- Tree
+		local tree = string.format("\\node[circle, draw, minimum size = 1.2cm, label = center : "..dico.tensorName[1].."] (root) at ("..dico.originX..","..dico.originY..") {} child[grow="..dico.tensorInnDimOrientation.."] {node (n1) {"..dico.tensorOutDimName[1].."}} child[grow="..dico.tensorOutDimOrientation.."]{");
+		for i = 2,dico.tensorMaxDim-1,1 do
+		   	if dico.ttDots and i == (dico.tensorMaxDim-1) then
+				local mid_dot = dico.treeLevelDistance/2
+			   tree = tree..string.format("node[minimum size = 1.2cm, label = center : "..dico.tensorName[i].."] (node"..i..") {} child[grow="..dico.tensorInnDimOrientation..", level distance="..mid_dot.."cm, white] {node[black] (n"..i..") {"..dico.tensorOutDimName[i].."}} child[grow="..dico.tensorOutDimOrientation.."]{")
+		   	else
+		   		tree = tree..string.format("node[circle, draw, minimum size = 1.2cm, label = center : "..dico.tensorName[i].."] (node"..i..") {} child[grow="..dico.tensorInnDimOrientation.."] {node[] (n"..i..") {"..dico.tensorOutDimName[i].."}} child[grow="..dico.tensorOutDimOrientation.."]{")
+			end
+		end
+		tree = tree..string.format("node[circle, draw, minimum size = 1.2cm, label = center : "..dico.tensorName[dico.tensorMaxDim].."] (node"..dico.tensorMaxDim..") {} child[grow="..dico.tensorInnDimOrientation.."] {node[] (n"..dico.tensorMaxDim..") {"..dico.tensorOutDimName[dico.tensorMaxDim].."} }")
+		for i = 2,dico.tensorMaxDim-1,1 do
+		  tree = tree..string.format("edge from parent node[sloped,anchor=south,auto=false,above,draw=none]{"..dico.tensorInnDimName[dico.tensorMaxDim+1-i].."}}")
+		end
+		tree = tree.."edge from parent node[sloped,anchor=south,auto=false,above,draw=none]{"..dico.tensorInnDimName[1].."}};"
+		tex.print(tree)
+		tex.print("\\tikzset{scale = 1};");
+	end
 	
-	function tikzTucker(origin_x, origin_y, radius, angle, core_name, nb_branch, branch_length, branch_name, label_distance, start_dot, end_dot)
-	--default parameter
-	  origin_x = origin_x or 0
-	  origin_y = origin_y or 0
-	  radius = radius or 1
-	  angle = angle or 360
-	  core_name = core_name or ''
-	  nb_branch = nb_branch or 1
-	  branch_length = branch_length or 0
-	  branch_name = branch_name or ''
-	  label_distance = label_distance or 1
-	  start_dot = start_dot or 1
-	  end_dot = end_dot or 1
+	-- function tikzTucker(origin_x, origin_y, radius, angle, core_name, nb_branch, branch_length, branch_name, start_dot, end_dot, outdim_name, label_relative)
+	--   --default parameter
+	--   origin_x = origin_x or 0
+	--   origin_y = origin_y or 0
+	--   radius = radius or 1
+	--   angle = angle or 360
+	--   core_name = core_name or ''
+	--   nb_branch = nb_branch or 1
+	--   branch_length = branch_length or 0
+	--   branch_name = branch_name or ''
+	--   start_dot = start_dot or 1
+	--   end_dot = end_dot or 1
+	--   outdim_name = outdim_name or ''
+	--   label_relative = label_relative or 'coreTucker'
+	--   --draw the core
+	--   tikzCoredBranch(origin_x, origin_y, radius, angle, core_name, nb_branch, branch_length, branch_name, start_dot, end_dot, true, outdim_name, label_relative)
+	-- end
+
+	function tikzTucker(nargs)
+	  --default parameter
+	  --dico = tikzArgDico(nargs)
 	  --draw the core
-	  tikzCoredBranch(origin_x, origin_y, radius, angle, core_name, nb_branch, branch_length, branch_name, label_distance, start_dot, end_dot, true)
+	  tikzCoredBranch(setmetatable(nargs, {__index = {tensorTucker = true}}))
+	end
+
+
+	function tikzArgDico(dico)
+		setmetatable(dico, {__index = {originX=0}})
+		-- Standard dico
+		 dico.originX 		 	= dico.originX or 0
+	  	 dico.originY 		 	= dico.originY or 0
+	  	 dico.radius 		 	= dico.radius or 1
+	  	 dico.angle 		 	= dico.angle or 360
+	  	 dico.maxBranch 	 	= dico.maxBranch or 1
+	  	 dico.outerEdgesLength  = dico.outerEdgesLength or 0
+		 dico.text 			 	= dico.text or ''
+		 dico.option 		 	= dico.option or ''
+		 dico.objName 		 	= dico.objName or ''
+		 dico.objectLabel 	 	= dico.objectLabel or ''
+		 dico.scale 		 	= dico.scale or 1
+		-- Relative dico
+		 dico.relativeStart 	= dico.relativeStart or ''
+		 dico.relativeEnd 	 	= dico.relativeEnd or ''
+		 dico.relativeMid 	 	= dico.relativeMid or 0.3
+		 dico.relativeSpace 	= dico.relativeSpace or 0.5
+		 dico.relativeLength 	= dico.relativeLength or 0.3
+		-- Tensor dico
+		 dico.tensorName 	 	= dico.tensorName or ''
+		 dico.tensorLabel 	 	= dico.tensorLabel or ''
+		 dico.tensorColor 	 	= dico.tensorColor or 'black'
+		 dico.tensorFillColor 	 	= dico.tensorFillColor or 'white'
+		 dico.tensorWidth 	 	= dico.tnesorWidth or 1
+		 dico.tensorHeight 	 	= dico.tensorHeight or 1
+		 dico.tensorCoreMinSize = dico.tensorCoreMinSize or 1
+		 dico.tensorMaxDim 	 	= dico.tensorMaxDim or 1
+		 dico.tensorOutDimName 	= dico.tensorOutDimName or ''
+		 dico.tensorOutDimLabel = dico.tenssorOutDimLabel or ''
+		 dico.tensorInnDimName 	= dico.tensorInnDimName or ''
+		 dico.tensorInnDimLabel 	= dico.tensorInnDimLabel or ''
+		 dico.tensorEdgeSize 	= dico.tensorEdgeSize or 1
+		 dico.tensorTucker 	 	= dico.tensorTucker or false
+		-- Tensor Train dico
+		 dico.tensorInnDimOrientation = dico.tensorInnDimOrientation or 'down'
+		 dico.tensorOutDimOrientation = dico.tensorOutDimOrientation or 'right'
+		 dico.ttDots 			= dico.ttDots or false
+		-- Tree dico
+		 dico.treeLevelDistance = dico.treeLevelDistance or 1.5
+		 dico.treeSiblingDistance = dico.treeSiblingDistance or 2
+		-- Dot between two nodes
+		 dico.startDot = dico.startDot or 1
+		 dico.endDot = dico.endDot or 1
+
+	  	return dico
+	end
+
+	function tikzShowDico(dico)
+	local i =0;
+    for k,v in pairs(dico) do
+      tex.print("\\node[] at (0,"..i..") {"..k.."};")
+	  if type(v) == "table" then
+		for k1,v1 in pairs(v) do
+			tex.print("\\node[] at (5,"..i..") {"..k1.."};")
+			tex.print("\\node[] at (10,"..i..") {"..tostring(v1).."};")
+			i = i + 1;
+		end
+		else
+      		tex.print("\\node[] at (10,"..i..") {"..tostring(v).."};")
+      		i = i + 1;
+		end
+    end
 	end
   \end{luacode*}
   
